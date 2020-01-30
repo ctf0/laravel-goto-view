@@ -1,46 +1,46 @@
-'use strict';
+'use strict'
 
 import {
     DocumentLinkProvider as vsDocumentLinkProvider,
     TextDocument,
-    ProviderResult,
     DocumentLink,
-    workspace,
     Position,
+    window,
     Range
 } from "vscode"
-import * as util from '../util';
+import * as util from '../util'
 
 export default class LinkProvider implements vsDocumentLinkProvider {
-    public provideDocumentLinks(doc: TextDocument): ProviderResult<DocumentLink[]> {
-        let documentLinks = [];
-        let config = workspace.getConfiguration('laravel_goto_view');
+    async provideDocumentLinks(doc: TextDocument): Promise<DocumentLink[]> {
+        let range = window.activeTextEditor.visibleRanges[0]
+        let reg = new RegExp(/(view|@(include|extends|component))\(['"](.*)?['"]\)/, 'g')
+        let documentLinks = []
 
-        if (config.quickJump) {
-            let reg = new RegExp(config.regex, 'g');
-            let linesCount = doc.lineCount <= config.maxLinesCount ? doc.lineCount : config.maxLinesCount
-            let index = 0;
-            while (index < linesCount) {
-                let line = doc.lineAt(index);
-                let result = line.text.match(reg);
+        for (let i = range.start.line; i <= range.end.line; i++) {
+            let line = doc.lineAt(i)
+            let txt = line.text
+            let result = txt.match(reg)
 
-                if (result != null) {
-                    for (let item of result) {
-                        let file = util.getFilePath(item, doc);
+            if (result != null) {
+                for (let found of result) {
+                    let files = await util.getFilePaths(found, doc)
 
-                        if (file != null) {
-                            let start = new Position(line.lineNumber, line.text.indexOf(item) + 1);
-                            let end = start.translate(0, item.length - 2);
-                            let documentlink = new DocumentLink(new Range(start, end), file.fileUri);
-                            documentLinks.push(documentlink);
-                        };
+                    console.log(files)
+
+                    if (files.length) {
+                        let start = new Position(line.lineNumber, txt.indexOf(found))
+                        let end = start.translate(0, found.length)
+
+                        for (const file of files) {
+                            let documentlink = new DocumentLink(new Range(start, end), file.fileUri)
+                            documentlink.tooltip = file.showPath
+                            documentLinks.push(documentlink)
+                        }
                     }
                 }
-
-                index++;
             }
         }
 
-        return documentLinks;
+        return documentLinks
     }
 }
