@@ -5,7 +5,7 @@ import { workspace, TextDocument, Uri } from 'vscode'
 const glob = require("fast-glob")
 
 export async function getFilePaths(text: string, document: TextDocument) {
-    let info = text.replace(new RegExp(/(view|@(include|extends|component))\(['"]|['"]\)/, 'g'), '')
+    let info = text.match(new RegExp(/['"](.*?)['"]/))[1]
     let viewPath = '/resources/views'
 
     if (info.includes("::")) {
