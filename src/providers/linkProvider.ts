@@ -25,8 +25,6 @@ export default class LinkProvider implements vsDocumentLinkProvider {
                 for (let found of result) {
                     let files = await util.getFilePaths(found, doc)
 
-                    console.log(files)
-
                     if (files.length) {
                         let start = new Position(line.lineNumber, txt.indexOf(found))
                         let end = start.translate(0, found.length)

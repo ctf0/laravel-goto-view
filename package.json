@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel goto view",
     "description": "Quick jump to view",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.41.0"
@@ -22,9 +22,7 @@
         "onLanguage:php",
         "onLanguage:blade"
     ],
-    "contributes": {
-        "configuration": {}
-    },
+    "contributes": {},
     "main": "./out/src/extension",
     "scripts": {
         "vscode:prepublish": "yarn run compile",
