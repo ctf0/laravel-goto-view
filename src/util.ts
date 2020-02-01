@@ -1,10 +1,13 @@
 'use strict'
 
-import { workspace, TextDocument, Uri } from 'vscode'
+import {
+    workspace,
+    Uri
+} from 'vscode'
 
 const glob = require("fast-glob")
 
-export async function getFilePaths(text: string, document: TextDocument) {
+export async function getFilePaths(text, document) {
     let info = text.match(new RegExp(/['"](.*?)['"]/))[1]
     let viewPath = '/resources/views'
 
@@ -36,4 +39,12 @@ async function getData(document, path, list) {
     })
 
     return result
+}
+
+/* Config ------------------------------------------------------------------- */
+export let methods
+
+export function readConfig() {
+    methods = workspace.getConfiguration('laravel_goto_view').methods
+    methods = methods.join('|')
 }

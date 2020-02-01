@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel goto view",
     "description": "Quick jump to view",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.41.0"
@@ -22,7 +22,30 @@
         "onLanguage:php",
         "onLanguage:blade"
     ],
-    "contributes": {},
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Laravel Goto View",
+            "properties": {
+                "laravel_goto_view.methods": {
+                    "type": "array",
+                    "default": [
+                        "view",
+                        "@include",
+                        "@extends",
+                        "@component",
+                        "view\\(\\)->composer"
+                    ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "description": "methods to search for"
+                }
+            }
+        }
+    },
     "main": "./out/src/extension",
     "scripts": {
         "vscode:prepublish": "yarn run compile",
