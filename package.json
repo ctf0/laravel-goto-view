@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel goto view",
     "description": "Quick jump to view",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.41.0"
@@ -20,7 +20,8 @@
     ],
     "activationEvents": [
         "onLanguage:php",
-        "onLanguage:blade"
+        "onLanguage:blade",
+        "onUri"
     ],
     "contributes": {
         "configuration": {
@@ -34,7 +35,8 @@
                         "@include",
                         "@extends",
                         "@component",
-                        "view\\(\\)->composer"
+                        "view()->composer",
+                        "view()->share"
                     ],
                     "items": {
                         "type": "string"
@@ -65,7 +67,8 @@
         "vscode-test": "^1.2.2"
     },
     "dependencies": {
-        "fast-glob": "^3.1.1",
+        "escape-string-regexp": "^2.0.0",
+        "fs-extra": "^8.1.0",
         "lodash.debounce": "^4.0.8"
     }
 }

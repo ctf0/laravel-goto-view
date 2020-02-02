@@ -44,6 +44,9 @@ export function activate(context: ExtensionContext) {
             }, 250)
         )
     }, 2000)
+
+    // create
+    util.createFileFromText()
 }
 
 function initProvider() {
@@ -51,7 +54,8 @@ function initProvider() {
 }
 
 function clearAll() {
-    return providers.forEach((e) => e.dispose())
+    providers.map((e) => e.dispose())
+    providers = []
 }
 
 export function deactivate() {
