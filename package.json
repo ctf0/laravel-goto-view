@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel goto view",
     "description": "Quick jump to view",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.41.0"
@@ -44,6 +44,21 @@
                     "minItems": 1,
                     "uniqueItems": true,
                     "description": "methods to search for"
+                },
+                "laravel_goto_view.createViewIfNotFound": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "auto create view if not found"
+                },
+                "laravel_goto_view.activateViewAfterCreation": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "show/open the newly created view"
+                },
+                "laravel_goto_view.viewDefaultValue": {
+                    "type": "string",
+                    "default": "@extends('layouts.app')",
+                    "description": "text to be added for the newly created view (this will open the file in the background)"
                 }
             }
         }

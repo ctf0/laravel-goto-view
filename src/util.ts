@@ -6,10 +6,13 @@ import {
     window,
     env,
     WorkspaceEdit,
-    commands
+    commands,
+    EventEmitter,
+    Position
 } from 'vscode'
 
 const fs = require("fs-extra")
+export const resetLinks = new EventEmitter()
 
 export async function getFilePath(text, document) {
     let info = text.replace(/['"]/g, '')
@@ -31,19 +34,19 @@ async function getData(document, path, list) {
     let filePath = `${workspaceFolder}${path}/${fileName}`
     let exists = await fs.pathExists(filePath)
 
-    if (exists) {
-        return {
+    return exists
+        ? {
             "tooltip": fileName,
             "fileUri": Uri.file(filePath)
         }
-    }
-
-    return {
-        "tooltip": `create "${fileName}"`,
-        fileUri: Uri
-            .parse(`${editor}${workspaceFolder}${path}/${fileName}`)
-            .with({ authority: 'ctf0.laravel-goto-view' })
-    }
+        : config.createViewIfNotFound
+            ? {
+                "tooltip": `create "${fileName}"`,
+                fileUri: Uri
+                    .parse(`${editor}${workspaceFolder}${path}/${fileName}`)
+                    .with({ authority: 'ctf0.laravel-goto-view' })
+            }
+            : false
 }
 
 /* Create ------------------------------------------------------------------- */
@@ -55,9 +58,20 @@ export function createFileFromText() {
             if (authority == 'ctf0.laravel-goto-view') {
                 let edit = await new WorkspaceEdit()
                 let file = Uri.file(path)
+                let defVal = config.viewDefaultValue
                 edit.createFile(file)
+                if (defVal) {
+                    edit.insert(file, new Position(0, 0), defVal)
+                }
                 await workspace.applyEdit(edit)
-                commands.executeCommand('vscode.openFolder', file)
+
+
+                window.showInformationMessage(`Laravel Goto View: "${path}" created`)
+                resetLinks.fire()
+
+                if (config.activateViewAfterCreation) {
+                    commands.executeCommand('vscode.openFolder', file)
+                }
             }
         }
     })
@@ -65,9 +79,10 @@ export function createFileFromText() {
 
 /* Config ------------------------------------------------------------------- */
 const escapeStringRegexp = require('escape-string-regexp')
+export let config: any = {}
 export let methods: any = ''
 
 export function readConfig() {
-    let config = workspace.getConfiguration('laravel_goto_view')
+    config = workspace.getConfiguration('laravel_goto_view')
     methods = config.methods.map((e) => escapeStringRegexp(e)).join('|')
 }

@@ -47,6 +47,10 @@ export function activate(context: ExtensionContext) {
 
     // create
     util.createFileFromText()
+    util.resetLinks.event(() => {
+        clearAll()
+        initProvider()
+    })
 }
 
 function initProvider() {

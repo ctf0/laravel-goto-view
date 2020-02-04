@@ -13,3 +13,7 @@
 
 - create view if not found
 - fix loss search, now it will get exact match
+
+## 0.0.6
+
+- configs for view creation
