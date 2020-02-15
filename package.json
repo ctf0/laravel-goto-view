@@ -1,8 +1,8 @@
 {
     "name": "laravel-goto-view",
-    "displayName": "Laravel goto view",
+    "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.41.0"
@@ -24,6 +24,20 @@
         "onUri"
     ],
     "contributes": {
+        "commands": [
+            {
+                "command": "lgtv.copyPath",
+                "title": "Laravel Goto View: Copy File Path"
+            }
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "lgtv.copyPath",
+                    "when": "editorLangId == blade"
+                }
+            ]
+        },
         "configuration": {
             "type": "object",
             "title": "Laravel Goto View",
@@ -55,9 +69,14 @@
                     "default": false,
                     "description": "show/open the newly created view"
                 },
+                "laravel_goto_view.copiedPathSurround": {
+                    "type": "string",
+                    "default": "@include('$ph')",
+                    "description": "auto surround copied file path ($ph will be replaced with the actual file path)"
+                },
                 "laravel_goto_view.viewDefaultValue": {
                     "type": "string",
-                    "default": "@extends('layouts.app')",
+                    "default": "@extends('layouts.app')\n\n@section('content)\n\n@endsection",
                     "description": "text to be added for the newly created view (this will open the file in the background)"
                 }
             }

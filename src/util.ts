@@ -36,12 +36,12 @@ async function getData(document, path, list) {
 
     return exists
         ? {
-            "tooltip": fileName,
-            "fileUri": Uri.file(filePath)
+            tooltip: fileName,
+            fileUri: Uri.file(filePath)
         }
         : config.createViewIfNotFound
             ? {
-                "tooltip": `create "${fileName}"`,
+                tooltip: `create "${fileName}"`,
                 fileUri: Uri
                     .parse(`${editor}${workspaceFolder}${path}/${fileName}`)
                     .with({ authority: 'ctf0.laravel-goto-view' })
@@ -56,15 +56,16 @@ export function createFileFromText() {
             let { authority, path } = uri
 
             if (authority == 'ctf0.laravel-goto-view') {
-                let edit = await new WorkspaceEdit()
                 let file = Uri.file(path)
                 let defVal = config.viewDefaultValue
+                let edit = await new WorkspaceEdit()
                 edit.createFile(file)
+
                 if (defVal) {
                     edit.insert(file, new Position(0, 0), defVal)
                 }
-                await workspace.applyEdit(edit)
 
+                await workspace.applyEdit(edit)
 
                 window.showInformationMessage(`Laravel Goto View: "${path}" created`)
                 resetLinks.fire()

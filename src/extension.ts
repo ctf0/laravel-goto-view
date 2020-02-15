@@ -4,7 +4,9 @@ import {
     languages,
     ExtensionContext,
     window,
-    workspace
+    commands,
+    workspace,
+    env
 } from 'vscode'
 import LinkProvider from './providers/linkProvider'
 import * as util from './util'
@@ -21,6 +23,19 @@ export function activate(context: ExtensionContext) {
             util.readConfig()
         }
     })
+
+    // command
+    context.subscriptions.push(commands.registerCommand('lgtv.copyPath', () => {
+        let editor = window.activeTextEditor
+        let { fileName } = editor.document
+        let path = fileName
+            .replace(/.*views\//, '') // remove start
+            .replace(/\.blade.*/, '') // remove end
+            .replace(/\//g, '.')      // convert
+        let ph = util.config.copiedPathSurround?.replace('$ph', path) || path
+
+        return env.clipboard.writeText(ph)
+    }))
 
     // links
     setTimeout(() => {
