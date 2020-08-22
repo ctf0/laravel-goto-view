@@ -21,3 +21,9 @@
 ## 0.0.7
 
 - add copy file path for laravel usage
+
+## 0.0.9
+
+- fix typo in `laravel_goto_view.viewDefaultValue`
+- fix linking to dynamic views (with variable in its name)
+- remove `view()->share` from default methods

@@ -1,24 +1,24 @@
 'use strict'
 
 import {
-    workspace,
+    commands,
+    env,
+    EventEmitter,
+    Position,
     Uri,
     window,
-    env,
-    WorkspaceEdit,
-    commands,
-    EventEmitter,
-    Position
+    workspace,
+    WorkspaceEdit
 } from 'vscode'
 
-const fs = require("fs-extra")
+const fs = require('fs-extra')
 export const resetLinks = new EventEmitter()
 
 export async function getFilePath(text, document) {
     let info = text.replace(/['"]/g, '')
     let viewPath = '/resources/views'
 
-    if (info.includes("::")) {
+    if (info.includes('::')) {
         let searchFor = info.split('::')
         viewPath = `${viewPath}/vendor/${searchFor[0]}`
         info = searchFor[1]
@@ -44,7 +44,7 @@ async function getData(document, path, list) {
                 tooltip: `create "${fileName}"`,
                 fileUri: Uri
                     .parse(`${editor}${workspaceFolder}${path}/${fileName}`)
-                    .with({ authority: 'ctf0.laravel-goto-view' })
+                    .with({authority: 'ctf0.laravel-goto-view'})
             }
             : false
 }
@@ -53,12 +53,12 @@ async function getData(document, path, list) {
 export function createFileFromText() {
     window.registerUriHandler({
         async handleUri(uri) {
-            let { authority, path } = uri
+            let {authority, path} = uri
 
             if (authority == 'ctf0.laravel-goto-view') {
                 let file = Uri.file(path)
                 let defVal = config.viewDefaultValue
-                let edit = await new WorkspaceEdit()
+                let edit = new WorkspaceEdit()
                 edit.createFile(file)
 
                 if (defVal) {
