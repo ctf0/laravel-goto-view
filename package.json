@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.0.9",
+    "version": "0.1.0",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.41.0"
@@ -28,6 +28,10 @@
             {
                 "command": "lgtv.copyPath",
                 "title": "Laravel Goto View: Copy File Path"
+            },
+            {
+                "command": "lgtv.openPath",
+                "title": "Laravel Goto View: Open File From Path"
             }
         ],
         "menus": {
@@ -35,6 +39,10 @@
                 {
                     "command": "lgtv.copyPath",
                     "when": "editorLangId == blade"
+                },
+                {
+                    "command": "lgtv.openPath",
+                    "when": "editorLangId =~ /(php|blade)/"
                 }
             ]
         },
@@ -49,7 +57,11 @@
                         "@include",
                         "@extends",
                         "@component",
-                        "view()->composer"
+                        "view()->composer",
+                        "links",
+                        "template",
+                        "markdown",
+                        "@each"
                     ],
                     "items": {
                         "type": "string"

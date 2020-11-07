@@ -27,3 +27,8 @@
 - fix typo in `laravel_goto_view.viewDefaultValue`
 - fix linking to dynamic views (with variable in its name)
 - remove `view()->share` from default methods
+
+## 0.1.0
+
+- add new command to easily go to path from path ex.`some.path.file`
+- add more methods to defaults
