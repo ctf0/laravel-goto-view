@@ -20,7 +20,7 @@ export function activate(context: ExtensionContext) {
 
     // config
     workspace.onDidChangeConfiguration(async (e) => {
-        if (e.affectsConfiguration('laravel_goto_view')) {
+        if (e.affectsConfiguration(util.PACKAGE_NAME)) {
             util.readConfig()
         }
     })
@@ -75,8 +75,8 @@ function copyPath() {
 
 async function openPath() {
     let path = await window.showInputBox({
-        placeHolder: 'blade.file.path',
-        value      : await env.clipboard.readText() || '',
+        placeHolder : 'blade.file.path',
+        value       : await env.clipboard.readText() || '',
         validateInput(v) {
             if (!v) {
                 return 'you have to add a path'

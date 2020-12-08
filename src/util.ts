@@ -28,7 +28,7 @@ export async function getFilePath(text, document) {
 }
 
 async function getData(document, path, list) {
-    let workspaceFolder = workspace.getWorkspaceFolder(document.uri).uri.fsPath
+    let workspaceFolder = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath
     let editor = `${env.uriScheme}://file`
     let fileName = list.replace(/\./g, '/') + '.blade.php'
     let filePath = `${workspaceFolder}${path}/${fileName}`
@@ -36,13 +36,13 @@ async function getData(document, path, list) {
 
     return exists
         ? {
-            tooltip: fileName,
-            fileUri: Uri.file(filePath)
+            tooltip : fileName,
+            fileUri : Uri.file(filePath)
         }
         : config.createViewIfNotFound
             ? {
-                tooltip: `create "${fileName}"`,
-                fileUri: Uri
+                tooltip : `create "${fileName}"`,
+                fileUri : Uri
                     .parse(`${editor}${workspaceFolder}${path}/${fileName}`)
                     .with({authority: 'ctf0.laravel-goto-view'})
             }
@@ -52,26 +52,29 @@ async function getData(document, path, list) {
 /* Create ------------------------------------------------------------------- */
 export function createFileFromText() {
     window.registerUriHandler({
-        async handleUri(uri) {
-            let {authority, path} = uri
+        async handleUri(provider) {
+            let {authority, path} = provider
 
             if (authority == 'ctf0.laravel-goto-view') {
                 let file = Uri.file(path)
-                let defVal = config.viewDefaultValue
                 let edit = new WorkspaceEdit()
-                edit.createFile(file)
+                edit.createFile(file) // open or create new file
 
-                if (defVal) {
-                    edit.insert(file, new Position(0, 0), defVal)
-                }
+                if (config.createViewIfNotFound) {
+                    let defVal = config.viewDefaultValue
 
-                await workspace.applyEdit(edit)
+                    if (defVal) {
+                        edit.insert(file, new Position(0, 0), defVal)
+                    }
 
-                window.showInformationMessage(`Laravel Goto View: "${path}" created`)
-                resetLinks.fire()
+                    await workspace.applyEdit(edit)
 
-                if (config.activateViewAfterCreation) {
-                    commands.executeCommand('vscode.openFolder', file)
+                    window.showInformationMessage(`Laravel Goto View: "${path}" created`)
+                    resetLinks.fire(resetLinks)
+
+                    if (config.activateViewAfterCreation) {
+                        commands.executeCommand('vscode.openFolder', file)
+                    }
                 }
             }
         }
@@ -80,10 +83,11 @@ export function createFileFromText() {
 
 /* Config ------------------------------------------------------------------- */
 const escapeStringRegexp = require('escape-string-regexp')
+export const PACKAGE_NAME = 'laravelGotoView'
 export let config: any = {}
 export let methods: any = ''
 
 export function readConfig() {
-    config = workspace.getConfiguration('laravel_goto_view')
+    config = workspace.getConfiguration(PACKAGE_NAME)
     methods = config.methods.map((e) => escapeStringRegexp(e)).join('|')
 }

@@ -32,3 +32,7 @@
 
 - add new command to easily go to path from path ex.`some.path.file`
 - add more methods to defaults
+
+## 0.1.2
+
+- fix package settings name
