@@ -32,15 +32,17 @@ export default class LinkProvider implements vsDocumentLinkProvider {
 
                 if (result) {
                     for (let found of result) {
-                        let file = await util.getFilePath(found, doc)
+                        let files = await util.getFilePath(found, doc)
 
-                        if (file) {
+                        if (files.length) {
                             let start = new Position(line.lineNumber, txt.indexOf(found))
                             let end = start.translate(0, found.length)
 
-                            let documentlink = new DocumentLink(new Range(start, end), file.fileUri)
-                            documentlink.tooltip = file.tooltip
-                            documentLinks.push(documentlink)
+                            files.map((file: any) => {
+                                let documentlink     = new DocumentLink(new Range(start, end), file.fileUri)
+                                documentlink.tooltip = file.tooltip
+                                documentLinks.push(documentlink)
+                            })
                         }
                     }
                 }

@@ -36,3 +36,8 @@
 ## 0.1.2
 
 - fix package settings name
+
+## 0.2.0
+
+- i recently started using [laravel-modules](https://nwidart.com/laravel-modules/v6/installation-and-setup) & manual navigation is just impossible, so now we have support to a custom internal & vendor paths :confetti_ball: :dancer: :rocket:
+- also now the hover card will show the full file path from root instead of just its name

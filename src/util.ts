@@ -1,93 +1,79 @@
 'use strict'
 
-import {
-    commands,
-    env,
-    EventEmitter,
-    Position,
-    Uri,
-    window,
-    workspace,
-    WorkspaceEdit
-} from 'vscode'
+import {env, Uri, workspace} from 'vscode'
 
-const fs = require('fs-extra')
-export const resetLinks = new EventEmitter()
+export const fs = require('fs-extra')
+export const pascalcase = require('pascalcase')
 
 export async function getFilePath(text, document) {
-    let info = text.replace(/['"]/g, '')
-    let viewPath = '/resources/views'
+    text = text.replace(/['"]/g, '')
+    let internal = getDocFullPath(document, defaultPath)
 
-    if (info.includes('::')) {
-        let searchFor = info.split('::')
-        viewPath = `${viewPath}/vendor/${searchFor[0]}`
-        info = searchFor[1]
+    if (text.includes('::')) {
+        text = text.split('::')
+        let vendor = text[0]
+        let key = text[1]
+
+        return Promise.all(
+            vendorPath.map((item) => {
+                return getData(
+                    document,
+                    getDocFullPath(document, item).replace('*', pascalcase(vendor)),
+                    key
+                )
+            }).concat([
+                getData(document, `${internal}/vendor/${vendor}`, key)
+            ])
+        ).then((data) => {
+            return data.filter((e) => e)
+        })
     }
 
-    return getData(document, viewPath, info)
+    return [getData(document, internal, text)]
 }
 
-async function getData(document, path, list) {
-    let workspaceFolder = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath
+async function getData(document, fullPath, text) {
     let editor = `${env.uriScheme}://file`
-    let fileName = list.replace(/\./g, '/') + '.blade.php'
-    let filePath = `${workspaceFolder}${path}/${fileName}`
+    let fileName = text.replace(/\./g, '/') + '.blade.php'
+    let filePath = `${fullPath}/${fileName}`
+    let fullFileName = getDocFullPath(document, filePath, false)
     let exists = await fs.pathExists(filePath)
 
     return exists
         ? {
-            tooltip : fileName,
+            tooltip : fullFileName,
             fileUri : Uri.file(filePath)
         }
         : config.createViewIfNotFound
             ? {
-                tooltip : `create "${fileName}"`,
+                tooltip : `create "${fullFileName}"`,
                 fileUri : Uri
-                    .parse(`${editor}${workspaceFolder}${path}/${fileName}`)
+                    .parse(`${editor}${fullPath}/${fileName}`)
                     .with({authority: 'ctf0.laravel-goto-view'})
             }
             : false
 }
 
-/* Create ------------------------------------------------------------------- */
-export function createFileFromText() {
-    window.registerUriHandler({
-        async handleUri(provider) {
-            let {authority, path} = provider
+function getDocFullPath(doc, path, add = true) {
+    let ws = workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath
 
-            if (authority == 'ctf0.laravel-goto-view') {
-                let file = Uri.file(path)
-                let edit = new WorkspaceEdit()
-                edit.createFile(file) // open or create new file
-
-                if (config.createViewIfNotFound) {
-                    let defVal = config.viewDefaultValue
-
-                    if (defVal) {
-                        edit.insert(file, new Position(0, 0), defVal)
-                    }
-
-                    await workspace.applyEdit(edit)
-
-                    window.showInformationMessage(`Laravel Goto View: "${path}" created`)
-                    resetLinks.fire(resetLinks)
-
-                    if (config.activateViewAfterCreation) {
-                        commands.executeCommand('vscode.openFolder', file)
-                    }
-                }
-            }
-        }
-    })
+    return add
+        ? path.replace('$base', ws)
+        : path.replace(`${ws}/`, '')
 }
 
 /* Config ------------------------------------------------------------------- */
 const escapeStringRegexp = require('escape-string-regexp')
 export const PACKAGE_NAME = 'laravelGotoView'
 export let config: any = {}
-export let methods: any = ''
+export let methods: string = ''
+
+export let defaultPath: string = ''
+export let vendorPath: any = []
 
 export function readConfig() {
     config = workspace.getConfiguration(PACKAGE_NAME)
     methods = config.methods.map((e) => escapeStringRegexp(e)).join('|')
+    defaultPath = config.defaultPath
+    vendorPath = config.vendorPath
 }
