@@ -2,53 +2,51 @@
 
 import {
     DocumentLink,
-    DocumentLinkProvider as vsDocumentLinkProvider,
+    DocumentLinkProvider,
     Position,
-    Range,
+
     TextDocument,
     window
 } from 'vscode'
 import * as util from '../util'
 
-export default class LinkProvider implements vsDocumentLinkProvider {
-    regex
+export default class LinkProvider implements DocumentLinkProvider {
+    methods: string
 
     constructor() {
-        this.regex = util.methods
+        this.methods = util.methods
     }
 
     async provideDocumentLinks(doc: TextDocument): Promise<DocumentLink[]> {
         let editor = window.activeTextEditor
 
         if (editor) {
-            let range = editor.visibleRanges[0]
-            let reg = new RegExp(`(?<=(${this.regex})\\()['"](((?![$*]).)*?)['"]`, 'g')
-            let documentLinks = []
+            const text = doc.getText()
+            let regex = new RegExp(`(?<=(${this.methods})\\()['"](((?![$*]).)*?)['"]`, 'g')
+            let links = []
+            let matches
 
-            for (let i = range.start.line; i <= range.end.line; i++) {
-                let line = doc.lineAt(i)
-                let txt = line.text
-                let result = txt.match(reg)
+            while ((matches = regex.exec(text)) !== null) {
+                let found = matches[0]
+                const line = doc.lineAt(doc.positionAt(matches.index).line)
+                const indexOf = line.text.indexOf(found)
+                const position = new Position(line.lineNumber, indexOf)
+                const range = doc.getWordRangeAtPosition(position, new RegExp(regex))
 
-                if (result) {
-                    for (let found of result) {
-                        let files = await util.getFilePath(found, doc)
+                if (range) {
+                    let files = await util.getFilePath(found, doc)
 
-                        if (files.length) {
-                            let start = new Position(line.lineNumber, txt.indexOf(found))
-                            let end = start.translate(0, found.length)
-
-                            files.map((file: any) => {
-                                let documentlink     = new DocumentLink(new Range(start, end), file.fileUri)
-                                documentlink.tooltip = file.tooltip
-                                documentLinks.push(documentlink)
-                            })
+                    if (files.length) {
+                        for (const file of files) {
+                            let documentlink     = new DocumentLink(range, file.fileUri)
+                            documentlink.tooltip = file.tooltip
+                            links.push(documentlink)
                         }
                     }
                 }
             }
 
-            return documentLinks
+            return links
         }
     }
 }

@@ -46,3 +46,9 @@
     + `view namespace` > `my_dashboard`
 - also now the hover card will show the full file path from root instead of just its name
 - oh & Merry Christmas 🎄
+
+## 0.3.0
+
+- add code lens to search for content in blade files which also support `@yield & @section`, toggle `laravelGotoView.showCodeLens` to disable this feature.
+- cache already resolved data to avoid refetching on each file scroll/open.
+- adding links should be 2x faster, if u have issues plz open a ticket.

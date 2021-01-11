@@ -10,22 +10,23 @@ import {
     workspace,
     WorkspaceEdit
 } from 'vscode'
-import {config, defaultPath, fs, pascalcase, vendorPath} from './util'
+import * as util from './util'
 
 export const resetLinks = new EventEmitter()
 
 export async function getFilePath(text) {
-    let internal = getWsFullPath(defaultPath)
+    let internal = getWsFullPath(util.defaultPath)
+    let char = '::'
 
-    if (text.includes('::')) {
-        text = text.split('::')
+    if (text.includes(char)) {
+        text = text.split(char)
         let vendor = text[0]
         let key = text[1]
 
         return Promise.all(
-            vendorPath.map((item) => {
+            util.vendorPath.map((item) => {
                 return getData(
-                    getWsFullPath(item).replace('*', pascalcase(vendor)),
+                    getWsFullPath(item).replace('*', util.pascalcase(vendor)),
                     key
                 )
             }).concat([
@@ -42,7 +43,7 @@ export async function getFilePath(text) {
 async function getData(fullPath, text) {
     let fileName = text.replace(/\./g, '/') + '.blade.php'
     let filePath = `${fullPath}/${fileName}`
-    let exists = await fs.pathExists(filePath)
+    let exists = await util.fs.pathExists(filePath)
 
     if (exists) {
         return {
@@ -69,7 +70,7 @@ export function copyPath() {
         .replace(/.*views\//, '') // remove start
         .replace(/\.blade.*/, '') // remove end
         .replace(/\//g, '.')      // convert
-    let ph = config.copiedPathSurround?.replace('$ph', path) || path
+    let ph = util.config.copiedPathSurround?.replace('$ph', path) || path
 
     return env.clipboard.writeText(ph)
 }
@@ -129,8 +130,8 @@ export function createFileFromText() {
                 let edit = new WorkspaceEdit()
                 edit.createFile(file) // open or create new file
 
-                if (config.createViewIfNotFound) {
-                    let defVal = config.viewDefaultValue
+                if (util.config.createViewIfNotFound) {
+                    let defVal = util.config.viewDefaultValue
 
                     if (defVal) {
                         edit.insert(file, new Position(0, 0), defVal)
@@ -141,11 +142,27 @@ export function createFileFromText() {
                     window.showInformationMessage(`Laravel Goto View: "${path}" created`)
                     resetLinks.fire(resetLinks)
 
-                    if (config.activateViewAfterCreation) {
+                    if (util.config.activateViewAfterCreation) {
                         commands.executeCommand('vscode.openFolder', file)
                     }
                 }
             }
+        }
+    })
+}
+
+/* Show Similar ------------------------------------------------------------- */
+
+export async function showSimilarCall(files) {
+    return window.showQuickPick(
+        files,
+        {
+            ignoreFocusOut : false,
+            placeHolder    : `chose file to open (${files.length})`
+        }
+    ).then((selection: any) => {
+        if (selection) {
+            return commands.executeCommand('vscode.openFolder', Uri.file(selection.detail))
         }
     })
 }
