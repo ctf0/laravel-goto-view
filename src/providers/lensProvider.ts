@@ -3,7 +3,6 @@
 import {
     CodeLens,
     CodeLensProvider,
-    Position,
     TextDocument,
     window
 } from 'vscode'
@@ -20,30 +19,32 @@ export default class lensProvider implements CodeLensProvider {
         let editor = window.activeTextEditor
 
         if (editor) {
-            let regex = new RegExp(`(?<=(${this.similarIncludeDirectives})\\()['"](((?![$*]).)*?)['"]`, 'g')
+            let {uri} = doc
+            util.setWs(uri)
+
+            const currentFile = uri.path
             const text = doc.getText()
+            const regex = new RegExp(`(?<=(${this.similarIncludeDirectives})\\()['"](((?![$*]).)*?)['"]`, 'g')
             let links = []
-            let matches
+            let matches = text.matchAll(regex)
 
-            while ((matches = regex.exec(text)) !== null) {
-                let found = matches[0]
-                const line = doc.lineAt(doc.positionAt(matches.index).line)
-                const indexOf = line.text.indexOf(found)
-                const position = new Position(line.lineNumber, indexOf)
-                const range = doc.getWordRangeAtPosition(position, new RegExp(regex))
+            for (const match of matches) {
+                let found = match[0]
+                let files = await util.searchForContentInFiles(found, currentFile)
 
-                if (range) {
-                    let files = await util.searchForContentInFiles(found, doc.uri.path)
+                if (files.length) {
+                    const range = doc.getWordRangeAtPosition(
+                        doc.positionAt(match.index),
+                        regex
+                    )
 
-                    if (files.length) {
-                        links.push(
-                            new CodeLens(range, {
-                                command   : 'lgtv.showSimilarCall',
-                                title     : util.config.codeLensText,
-                                arguments : [files]
-                            })
-                        )
-                    }
+                    links.push(
+                        new CodeLens(range, {
+                            command   : 'lgtv.showSimilarCall',
+                            title     : util.config.codeLensText,
+                            arguments : [files]
+                        })
+                    )
                 }
             }
 

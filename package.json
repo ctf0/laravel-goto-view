@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.52.0"
@@ -21,7 +21,8 @@
     "activationEvents": [
         "onLanguage:php",
         "onLanguage:blade",
-        "onUri"
+        "onUri",
+        "onStartupFinished"
     ],
     "contributes": {
         "commands": [
@@ -104,7 +105,7 @@
                     },
                     "minItems": 1,
                     "uniqueItems": true,
-                    "description": "directives to add similar view includes code lens for\n\nrequire `#laravelGotoView.showCodeLens`"
+                    "markdownDescription": "directives to add similar view includes code lens for\n\nrequire `#laravelGotoView.showCodeLens#`"
                 },
                 "laravelGotoView.similarIncludeFilesRegex": {
                     "type": "array",

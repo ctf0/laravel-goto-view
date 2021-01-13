@@ -8,12 +8,14 @@ const escapeStringRegexp = require('escape-string-regexp')
 
 let ws = null
 
+export function setWs(uri) {
+    ws = workspace.getWorkspaceFolder(uri)?.uri.fsPath
+}
+
 /* Link --------------------------------------------------------------------- */
 let cache_store_link = []
 
-export async function getFilePath(text, document) {
-    ws = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath
-
+export async function getFilePath(text) {
     text = text.replace(/['"]/g, '')
     let cache_key = text
     let list = checkCache(cache_store_link, cache_key)
@@ -34,7 +36,7 @@ export async function getFilePath(text, document) {
                         key
                     )
                 }).concat([
-                    getData(`${internal}/vendor/${vendor}`, key)
+                    await getData(`${internal}/vendor/${vendor}`, key)
                 ])
             )
 
@@ -42,7 +44,7 @@ export async function getFilePath(text, document) {
 
             saveCache(cache_store_link, cache_key, list)
         } else {
-            list = [getData(internal, text)]
+            list = [await getData(internal, text)]
 
             saveCache(cache_store_link, cache_key, list)
         }
@@ -117,10 +119,12 @@ function checkCache(cache_store, text) {
 }
 
 function saveCache(cache_store, text, val) {
-    cache_store.push({
-        key : text,
-        val : val
-    })
+    checkCache(cache_store, text).length
+        ? false
+        : cache_store.push({
+            key : text,
+            val : val
+        })
 
     return val
 }

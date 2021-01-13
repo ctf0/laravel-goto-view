@@ -30,31 +30,21 @@ export async function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand('lgtv.openPath', cmnds.openPath))
     context.subscriptions.push(commands.registerCommand('lgtv.showSimilarCall', cmnds.showSimilarCall))
 
-    init()
+    // links
+    initProviders()
+    window.onDidChangeActiveTextEditor(async (e) => {
+        if (e) {
+            await clearAll()
+            initProviders()
+        }
+    })
 
     // create
     cmnds.createFileFromText()
-    cmnds.resetLinks.event(() => {
-        clearAll()
+    cmnds.resetLinks.event(async () => {
+        await clearAll()
         initProviders()
     })
-}
-
-function init() {
-    // links
-    if (window.activeTextEditor) {
-        initProviders()
-    }
-
-    window.onDidChangeActiveTextEditor(
-        debounce(async function (editor) {
-            if (editor) {
-                await clearAll()
-                initProviders()
-            }
-        }, 250)
-    )
-
 }
 
 const initProviders = debounce(function () {
