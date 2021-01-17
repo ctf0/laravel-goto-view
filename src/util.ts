@@ -4,6 +4,7 @@ import {env, Uri, workspace} from 'vscode'
 
 export const fs = require('fs-extra')
 export const pascalcase = require('pascalcase')
+const debounce           = require('lodash.debounce')
 const escapeStringRegexp = require('escape-string-regexp')
 
 let ws = null
@@ -16,9 +17,9 @@ export function setWs(uri) {
 let cache_store_link = []
 
 export async function getFilePath(text) {
-    text = text.replace(/['"]/g, '')
+    text          = text.replace(/['"]/g, '')
     let cache_key = text
-    let list = checkCache(cache_store_link, cache_key)
+    let list      = checkCache(cache_store_link, cache_key)
 
     if (!list.length) {
         let internal = getDocFullPath(defaultPath)
@@ -54,11 +55,11 @@ export async function getFilePath(text) {
 }
 
 async function getData(fullPath, text) {
-    let editor = `${env.uriScheme}://file`
-    let fileName = text.replace(/\./g, '/') + '.blade.php'
-    let filePath = `${fullPath}/${fileName}`
+    let editor       = `${env.uriScheme}://file`
+    let fileName     = text.replace(/\./g, '/') + '.blade.php'
+    let filePath     = `${fullPath}/${fileName}`
     let fullFileName = getDocFullPath(filePath, false)
-    let exists = await fs.pathExists(filePath)
+    let exists       = await fs.pathExists(filePath)
 
     return exists
         ? {
@@ -83,8 +84,8 @@ function getDocFullPath(path, add = true) {
 
 /* Lens --------------------------------------------------------------------- */
 
-const findInFiles = require('find-in')
-let cache_store_lens = []
+const findInFiles                 = require('find-in')
+let cache_store_lens              = []
 let similarIncludeFilesCache: any = []
 
 export async function searchForContentInFiles(text, currentFile) {
@@ -108,6 +109,34 @@ export async function searchForContentInFiles(text, currentFile) {
     }
 
     return list
+}
+
+/* Content ------------------------------------------------------------------ */
+
+export async function listenForFileChanges() {
+    if (config.watchFilesForChange) {
+        try {
+            let watcher = workspace.createFileSystemWatcher('**/*.blade.php')
+
+            watcher.onDidChange(
+                debounce(async function(e) {
+                    await saveSimilarIncludeFilesCache()
+                }, 60 * 1000)
+            )
+        } catch (error) {
+            // console.error(error);
+        }
+    }
+}
+
+async function saveSimilarIncludeFilesCache() {
+    if (showCodeLens) {
+        for (const path of config.similarIncludeFilesRegex) {
+            similarIncludeFilesCache.push(await workspace.findFiles(path, '**/.*'))
+        }
+
+        similarIncludeFilesCache = similarIncludeFilesCache.flat().map((file) => file.path)
+    }
 }
 
 /* Helpers ------------------------------------------------------------------ */
@@ -140,18 +169,12 @@ export let defaultPath: string = ''
 export let vendorPath: any = []
 
 export async function readConfig() {
-    config = workspace.getConfiguration(PACKAGE_NAME)
-    methods = config.methods.map((e) => escapeStringRegexp(e)).join('|')
+    config                   = workspace.getConfiguration(PACKAGE_NAME)
+    methods                  = config.methods.map((e) => escapeStringRegexp(e)).join('|')
     similarIncludeDirectives = config.similarIncludeDirectives.map((e) => escapeStringRegexp(e)).join('|')
-    defaultPath = config.defaultPath
-    vendorPath = config.vendorPath
-    showCodeLens = config.showCodeLens
+    defaultPath              = config.defaultPath
+    vendorPath               = config.vendorPath
+    showCodeLens             = config.showCodeLens
 
-    if (showCodeLens) {
-        for (const path of config.similarIncludeFilesRegex) {
-            similarIncludeFilesCache.push(await workspace.findFiles(path, '**/.*'))
-        }
-
-        similarIncludeFilesCache = similarIncludeFilesCache.flat().map((file) => file.path)
-    }
+    await saveSimilarIncludeFilesCache()
 }

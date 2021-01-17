@@ -12,7 +12,7 @@ import LensProvider from './providers/lensProvider'
 import LinkProvider from './providers/linkProvider'
 import * as util    from './util'
 
-let providers = []
+let providers  = []
 const debounce = require('lodash.debounce')
 
 export async function activate(context: ExtensionContext) {
@@ -33,10 +33,8 @@ export async function activate(context: ExtensionContext) {
     // links
     initProviders()
     window.onDidChangeActiveTextEditor(async (e) => {
-        if (e) {
-            await clearAll()
-            initProviders()
-        }
+        await clearAll()
+        initProviders()
     })
 
     // create
@@ -45,9 +43,12 @@ export async function activate(context: ExtensionContext) {
         await clearAll()
         initProviders()
     })
+
+    // .blade files changes
+    await util.listenForFileChanges()
 }
 
-const initProviders = debounce(function () {
+const initProviders = debounce(function() {
     providers.push(languages.registerDocumentLinkProvider(['php', 'blade'], new LinkProvider()))
 
     if (util.showCodeLens) {
@@ -56,7 +57,7 @@ const initProviders = debounce(function () {
 }, 250)
 
 
-function clearAll () {
+function clearAll() {
     return new Promise((res, rej) => {
         providers.map((e) => e.dispose())
         providers = []

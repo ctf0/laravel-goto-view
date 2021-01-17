@@ -52,3 +52,7 @@
 - add code lens to search for content in blade files which also support `@yield & @section`, toggle `laravelGotoView.showCodeLens` to disable this feature.
 - cache already resolved data to avoid refetching on each file scroll/open.
 - adding links should be 2x faster, if u have issues plz open a ticket.
+
+## 0.3.2
+
+- add new config `watchFilesForChanges`

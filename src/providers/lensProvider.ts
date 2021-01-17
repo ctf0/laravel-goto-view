@@ -23,10 +23,10 @@ export default class lensProvider implements CodeLensProvider {
             util.setWs(uri)
 
             const currentFile = uri.path
-            const text = doc.getText()
-            const regex = new RegExp(`(?<=(${this.similarIncludeDirectives})\\()['"](((?![$*]).)*?)['"]`, 'g')
-            let links = []
-            let matches = text.matchAll(regex)
+            const text        = doc.getText()
+            const regex       = new RegExp(`(?<=(${this.similarIncludeDirectives})\\()['"](((?![$*]).)*?)['"]`, 'g')
+            let links         = []
+            let matches       = text.matchAll(regex)
 
             for (const match of matches) {
                 let found = match[0]

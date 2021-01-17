@@ -21,9 +21,9 @@ export default class LinkProvider implements DocumentLinkProvider {
         if (editor) {
             util.setWs(doc.uri)
 
-            const text = doc.getText()
+            const text  = doc.getText()
             const regex = new RegExp(`(?<=(${this.methods})\\()['"](((?![$*]).)*?)['"]`, 'g')
-            let links = []
+            let links   = []
             let matches = text.matchAll(regex)
 
             for (const match of matches) {

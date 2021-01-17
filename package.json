@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.52.0"
@@ -79,6 +79,11 @@
                     "minItems": 1,
                     "uniqueItems": true,
                     "description": "methods to search for"
+                },
+                "laravelGotoView.watchFilesForChanges": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "watch blade files for changes so code lens list is always fresh (debounced to 1/min to minimize load)"
                 },
                 "laravelGotoView.showCodeLens": {
                     "type": "boolean",

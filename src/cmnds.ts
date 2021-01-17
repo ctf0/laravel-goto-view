@@ -16,12 +16,12 @@ export const resetLinks = new EventEmitter()
 
 export async function getFilePath(text) {
     let internal = getWsFullPath(util.defaultPath)
-    let char = '::'
+    let char     = '::'
 
     if (text.includes(char)) {
-        text = text.split(char)
+        text       = text.split(char)
         let vendor = text[0]
-        let key = text[1]
+        let key    = text[1]
 
         return Promise.all(
             util.vendorPath.map((item) => {
@@ -43,7 +43,7 @@ export async function getFilePath(text) {
 async function getData(fullPath, text) {
     let fileName = text.replace(/\./g, '/') + '.blade.php'
     let filePath = `${fullPath}/${fileName}`
-    let exists = await util.fs.pathExists(filePath)
+    let exists   = await util.fs.pathExists(filePath)
 
     if (exists) {
         return {
@@ -64,13 +64,13 @@ function getWsFullPath(path, add = true) {
 /* Copy --------------------------------------------------------------------- */
 
 export function copyPath() {
-    let editor = window.activeTextEditor
+    let editor     = window.activeTextEditor
     let {fileName} = editor.document
-    let path = fileName
+    let path       = fileName
         .replace(/.*views\//, '') // remove start
         .replace(/\.blade.*/, '') // remove end
         .replace(/\//g, '.')      // convert
-    let ph = util.config.copiedPathSurround?.replace('$ph', path) || path
+    let ph         = util.config.copiedPathSurround?.replace('$ph', path) || path
 
     return env.clipboard.writeText(ph)
 }
