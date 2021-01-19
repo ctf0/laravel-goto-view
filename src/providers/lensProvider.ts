@@ -24,20 +24,19 @@ export default class lensProvider implements CodeLensProvider {
 
             const currentFile = uri.path
             const text        = doc.getText()
-            const regex       = new RegExp(`(?<=(${this.similarIncludeDirectives})\\()['"](((?![$*]).)*?)['"]`, 'g')
+            const regex       = new RegExp(`(?<=(${this.similarIncludeDirectives})\\()['"]([^$*]*?)['"]`, 'g')
             let links         = []
             let matches       = text.matchAll(regex)
 
             for (const match of matches) {
-                let found = match[0]
-                let files = await util.searchForContentInFiles(found, currentFile)
+                let found   = match[0]
+                let files   = await util.searchForContentInFiles(found, currentFile)
+                const range = doc.getWordRangeAtPosition(
+                    doc.positionAt(match.index),
+                    regex
+                )
 
-                if (files.length) {
-                    const range = doc.getWordRangeAtPosition(
-                        doc.positionAt(match.index),
-                        regex
-                    )
-
+                if (files.length && range) {
                     links.push(
                         new CodeLens(range, {
                             command   : 'lgtv.showSimilarCall',

@@ -17,7 +17,12 @@ export function setWs(uri) {
 let cache_store_link = []
 
 export async function getFilePath(text) {
-    text          = text.replace(/['"]/g, '')
+    text = text.replace(/['"]/g, '')
+
+    if (text.endsWith('.')) {
+        return []
+    }
+
     let cache_key = text
     let list      = checkCache(cache_store_link, cache_key)
 
@@ -94,7 +99,10 @@ export async function searchForContentInFiles(text, currentFile) {
     if (!list.length) {
         for (const path of similarIncludeFilesCache) {
             if (path != currentFile) {
-                let found = await findInFiles({path: path, request: [new RegExp(`${text}`)]})
+                let found = await findInFiles({
+                    path    : path,
+                    request : [new RegExp(text)]
+                })
 
                 if (found.some((e) => e.match)) {
                     list.push({

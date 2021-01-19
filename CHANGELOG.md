@@ -56,3 +56,8 @@
 ## 0.3.2
 
 - add new config `watchFilesForChanges`
+
+## 0.3.3
+
+- fix range is undefined
+- fix hl keys that ends with `.`

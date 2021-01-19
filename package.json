@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.52.0"
@@ -118,6 +118,11 @@
                         "resources/views/**/*blade*",
                         "Modules/**/*blade*"
                     ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true,
                     "description": "which files to look for similar includes (path begin from root)"
                 },
                 "laravelGotoView.createViewIfNotFound": {
