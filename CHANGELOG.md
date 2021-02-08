@@ -61,3 +61,9 @@
 
 - fix range is undefined
 - fix hl keys that ends with `.`
+
+## 0.3.4
+
+- add new entry under picker to open all files
+- auto scroll to view name after choosing a file from the picker
+- you can now view the total files found in the lens as well

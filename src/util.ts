@@ -93,23 +93,21 @@ const findInFiles                 = require('find-in')
 let cache_store_lens              = []
 let similarIncludeFilesCache: any = []
 
-export async function searchForContentInFiles(text, currentFile) {
+export async function searchForContentInFiles(text) {
     let list = checkCache(cache_store_lens, text)
 
     if (!list.length) {
         for (const path of similarIncludeFilesCache) {
-            if (path != currentFile) {
-                let found = await findInFiles({
-                    path    : path,
-                    request : [new RegExp(text)]
-                })
+            let found = await findInFiles({
+                path    : path,
+                request : [text]
+            })
 
-                if (found.some((e) => e.match)) {
-                    list.push({
-                        label  : getDocFullPath(path, false),
-                        detail : path
-                    })
-                }
+            if (found.some((e) => e.match)) {
+                list.push({
+                    label  : getDocFullPath(path, false),
+                    detail : path
+                })
             }
         }
 

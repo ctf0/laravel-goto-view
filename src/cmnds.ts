@@ -5,6 +5,8 @@ import {
     env,
     EventEmitter,
     Position,
+    Range,
+    Selection,
     Uri,
     window,
     workspace,
@@ -153,16 +155,56 @@ export function createFileFromText() {
 
 /* Show Similar ------------------------------------------------------------- */
 
-export async function showSimilarCall(files) {
+export async function showSimilarCall(files, query, currentFile) {
+    files   = files.filter((e) => e.detail != currentFile)
+    let len = files.length
+    let all = `Open All (${len})`
+    let pad = '-'.repeat(94)
+
+    let list = len <= 1
+        ? files
+        : [...files, {
+            label  : all,
+            detail : pad
+        }]
+
     return window.showQuickPick(
-        files,
+        list,
         {
             ignoreFocusOut : false,
-            placeHolder    : `chose file to open (${files.length})`
+            placeHolder    : `chose file to open (${len})`
         }
-    ).then((selection: any) => {
+    ).then(async (selection: any) => {
         if (selection) {
-            return commands.executeCommand('vscode.openFolder', Uri.file(selection.detail))
+            if (selection.label != all) {
+                return commands.executeCommand('vscode.openFolder', Uri.file(selection.detail))
+                    .then(() => {
+                        setTimeout(() => {
+                            let editor = window.activeTextEditor
+                            let range  = getTextPosition(query, editor.document)
+
+                            if (range) {
+                                editor.selection = new Selection(range.start, range.end)
+                                editor.revealRange(range, 3)
+                            }
+                        }, 500)
+                    })
+            }
+
+            for (const file of files) {
+                await commands.executeCommand('vscode.openFolder', Uri.file(file.detail))
+            }
         }
     })
+}
+
+function getTextPosition(searchFor, doc) {
+    const regex = new RegExp(searchFor)
+    const match = regex.exec(doc.getText())
+
+    if (match) {
+        let pos = doc.positionAt(match.index + match[0].length)
+
+        return new Range(pos, pos)
+    }
 }

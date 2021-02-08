@@ -30,7 +30,7 @@ export default class lensProvider implements CodeLensProvider {
 
             for (const match of matches) {
                 let found   = match[0]
-                let files   = await util.searchForContentInFiles(found, currentFile)
+                let files   = await util.searchForContentInFiles(found)
                 const range = doc.getWordRangeAtPosition(
                     doc.positionAt(match.index),
                     regex
@@ -40,8 +40,8 @@ export default class lensProvider implements CodeLensProvider {
                     links.push(
                         new CodeLens(range, {
                             command   : 'lgtv.showSimilarCall',
-                            title     : util.config.codeLensText,
-                            arguments : [files]
+                            title     : util.config.codeLensText.replace('#', files.length),
+                            arguments : [files, found, currentFile]
                         })
                     )
                 }
