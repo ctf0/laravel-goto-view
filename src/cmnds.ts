@@ -32,7 +32,7 @@ export async function getFilePath(text) {
                     key
                 )
             }).concat([
-                getData(`${internal}/vendor/${vendor}`, key)
+                getData(`${internal}${util.sep}vendor${util.sep}${vendor}`, key)
             ])
         ).then((data) => {
             return data.filter((e) => e)
@@ -43,8 +43,8 @@ export async function getFilePath(text) {
 }
 
 async function getData(fullPath, text) {
-    let fileName = text.replace(/\./g, '/') + '.blade.php'
-    let filePath = `${fullPath}/${fileName}`
+    let fileName = text.replace(/\./g, util.sep) + '.blade.php'
+    let filePath = `${fullPath}${util.sep}${fileName}`
     let exists   = await util.fs.pathExists(filePath)
 
     if (exists) {
@@ -69,10 +69,11 @@ export function copyPath() {
     let editor     = window.activeTextEditor
     let {fileName} = editor.document
     let path       = fileName
-        .replace(/.*views\//, '') // remove start
-        .replace(/\.blade.*/, '') // remove end
-        .replace(/\//g, '.')      // convert
-    let ph         = util.config.copiedPathSurround?.replace('$ph', path) || path
+        .replace(/.*views[\\\/]/, '') // remove start
+        .replace(/\.blade.*/, '')     // remove end
+        .replace(/[\\\/]/g, '.')      // convert
+
+    let ph = util.config.copiedPathSurround?.replace('$ph', path) || path
 
     return env.clipboard.writeText(ph)
 }

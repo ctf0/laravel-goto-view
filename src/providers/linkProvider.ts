@@ -21,17 +21,50 @@ export default class LinkProvider implements DocumentLinkProvider {
         if (editor) {
             util.setWs(doc.uri)
 
-            const text  = doc.getText()
-            const regex = new RegExp(`(?<=(${this.methods})\\()['"]([^$*]*?)['"]`, 'g')
-            let links   = []
-            let matches = text.matchAll(regex)
+            const text = doc.getText()
+            let links  = []
+            let founds = []
+            let regex
+            let matches
+
+            /* Normal ------------------------------------------------------------------- */
+
+            regex   = new RegExp(`(?<=(${this.methods})\\()[\'"]([^$*]*?)[\'"]`, 'g')
+            matches = text.matchAll(regex)
 
             for (const match of matches) {
-                let found   = match[0]
-                let files   = await util.getFilePath(found)
+                founds.push({
+                    text    : match[0],
+                    index   : match.index,
+                    pattern : regex
+                })
+            }
+
+            /* Special ------------------------------------------------------------------ */
+
+            regex   = new RegExp('(?<=Route::view\\()(?:.*,( +)?)([\'"]([^$*]*?)[\'"])', 'g')
+            matches = text.matchAll(regex)
+
+            for (const match of matches) {
+                let text = match[2]
+
+                founds.push({
+                    text    : text,
+                    index   : match.index + (match[0].length - text.length),
+                    pattern : new RegExp(text)
+                })
+            }
+
+
+            /* -------------------------------------------------------------------------- */
+            /*                                     OPS                                    */
+            /* -------------------------------------------------------------------------- */
+
+            for (const {text, index, pattern} of founds) {
+                let files   = await util.getFilePath(text)
                 const range = doc.getWordRangeAtPosition(
-                    doc.positionAt(match.index),
-                    regex
+                    doc.positionAt(index),
+                    pattern
                 )
 
                 if (files.length && range) {

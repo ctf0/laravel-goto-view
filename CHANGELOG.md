@@ -67,3 +67,9 @@
 - add new entry under picker to open all files
 - auto scroll to view name after choosing a file from the picker
 - you can now view the total files found in the lens as well
+
+## 0.3.7
+
+- fix wrong path seperator for windows
+- fix incorrect hl for `Route::view()`
+- add support for `Route::view()`

@@ -9,3 +9,12 @@ based on https://github.com/codingyu/laravel-goto-view but with better api
 - copy file path
 - open file path
 - show files with similar content via codelens
+
+### laravel-modules
+
+i recently started using [laravel-modules](https://nwidart.com/laravel-modules/v6/installation-and-setup) & manual navigation is just impossible,
+
+so for the package to work correctly, make sure u r following the nameing convention of `Pascal > Snake` ex.
+
+> + `module namespace` > `MyDashboard`
+> + `view namespace` > `my_dashboard`

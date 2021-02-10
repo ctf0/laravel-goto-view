@@ -2,10 +2,12 @@
 
 import {env, Uri, workspace} from 'vscode'
 
-export const fs = require('fs-extra')
-export const pascalcase = require('pascalcase')
+const path               = require('path')
 const debounce           = require('lodash.debounce')
 const escapeStringRegexp = require('escape-string-regexp')
+export const fs = require('fs-extra')
+export const pascalcase = require('pascalcase')
+export const sep = path.sep
 
 let ws = null
 
@@ -42,16 +44,16 @@ export async function getFilePath(text) {
                         key
                     )
                 }).concat([
-                    await getData(`${internal}/vendor/${vendor}`, key)
+                    await getData(`${internal}${sep}vendor${sep}${vendor}`, key)
                 ])
             )
-
-            list = list.filter((e) => e)
-
-            saveCache(cache_store_link, cache_key, list)
         } else {
             list = [await getData(internal, text)]
+        }
 
+        list = list.filter((e) => e)
+
+        if (list.length) {
             saveCache(cache_store_link, cache_key, list)
         }
     }
@@ -61,8 +63,8 @@ export async function getFilePath(text) {
 
 async function getData(fullPath, text) {
     let editor       = `${env.uriScheme}://file`
-    let fileName     = text.replace(/\./g, '/') + '.blade.php'
-    let filePath     = `${fullPath}/${fileName}`
+    let fileName     = text.replace(/\./g, sep) + '.blade.php'
+    let filePath     = `${fullPath}${sep}${fileName}`
     let fullFileName = getDocFullPath(filePath, false)
     let exists       = await fs.pathExists(filePath)
 
@@ -84,7 +86,7 @@ async function getData(fullPath, text) {
 function getDocFullPath(path, add = true) {
     return add
         ? path.replace('$base', ws)
-        : path.replace(`${ws}/`, '')
+        : path.replace(`${ws}${sep}`, '')
 }
 
 /* Lens --------------------------------------------------------------------- */
@@ -176,7 +178,7 @@ export let vendorPath: any = []
 
 export async function readConfig() {
     config                   = workspace.getConfiguration(PACKAGE_NAME)
-    methods                  = config.methods.map((e) => escapeStringRegexp(e)).join('|')
+    methods                  = config.methods.map((e) => (e.includes('?') ? e : escapeStringRegexp(e))).join('|')
     similarIncludeDirectives = config.similarIncludeDirectives.map((e) => escapeStringRegexp(e)).join('|')
     defaultPath              = config.defaultPath
     vendorPath               = config.vendorPath
