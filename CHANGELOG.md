@@ -73,3 +73,8 @@
 - fix wrong path seperator for windows
 - fix incorrect hl for `Route::view()`
 - add support for `Route::view()`
+
+## 0.3.8
+
+- hide codelens if the view is declared only once
+- add `@stack` to code lens directives list

@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.3.7",
+    "version": "0.3.8",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.52.0"
@@ -103,7 +103,8 @@
                         "@component",
                         "@each",
                         "@yield",
-                        "@section"
+                        "@section",
+                        "@stack"
                     ],
                     "items": {
                         "type": "string"

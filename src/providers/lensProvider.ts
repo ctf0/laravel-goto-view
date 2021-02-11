@@ -36,7 +36,7 @@ export default class lensProvider implements CodeLensProvider {
                     regex
                 )
 
-                if (files.length && range) {
+                if (files.length > 1 && range) {
                     links.push(
                         new CodeLens(range, {
                             command   : 'lgtv.showSimilarCall',
