@@ -85,7 +85,7 @@ async function getData(fullPath, text) {
 
 function getDocFullPath(path, add = true) {
     return add
-        ? path.replace('$base', ws)
+        ? `${ws}${path}`.replace(/[\\\/]/g, sep)
         : path.replace(`${ws}${sep}`, '')
 }
 

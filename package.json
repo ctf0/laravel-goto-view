@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.3.8",
+    "version": "0.3.9",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.52.0"
@@ -148,20 +148,20 @@
                 },
                 "laravelGotoView.defaultPath": {
                     "type": "string",
-                    "default": "$base/resources/views",
-                    "markdownDescription": "laravel default view path ($base == [base_path()](https://laravel.com/docs/8.x/helpers#method-base-path))"
+                    "default": "/resources/views",
+                    "markdownDescription": "laravel default view path from app root"
                 },
                 "laravelGotoView.vendorPath": {
                     "type": "array",
                     "default": [
-                        "$base/Modules/*/Resources/views"
+                        "/Modules/*/Resources/views"
                     ],
                     "items": {
                         "type": "string"
                     },
                     "minItems": 1,
                     "uniqueItems": true,
-                    "markdownDescription": "where to look for the view files\n\n(* will be replaced by [namespace](https://laravel.com/docs/8.x/packages#views))\n\n($base == [base_path()](https://laravel.com/docs/8.x/helpers#method-base-path))"
+                    "markdownDescription": "where to look for the view files path from app root\n\n(* will be replaced by [namespace](https://laravel.com/docs/8.x/packages#views))"
                 }
             }
         }

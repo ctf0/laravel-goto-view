@@ -59,7 +59,7 @@ function getWsFullPath(path, add = true) {
     let ws = workspace.workspaceFolders[0]?.uri.fsPath
 
     return add
-        ? path.replace('$base', ws)
+        ? `${ws}${path}`.replace(/[\\\/]/g, util.sep)
         : path.replace(ws, '')
 }
 
