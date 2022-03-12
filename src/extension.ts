@@ -7,13 +7,13 @@ import {
     window,
     workspace
 } from 'vscode'
-import * as cmnds   from './cmnds'
+import * as cmnds from './cmnds'
 import LensProvider from './providers/lensProvider'
 import LinkProvider from './providers/linkProvider'
-import * as util    from './util'
+import * as util from './util'
+import { debounce } from 'lodash'
 
 let providers  = []
-const debounce = require('lodash.debounce')
 
 export async function activate(context: ExtensionContext) {
     await util.readConfig()

@@ -1,9 +1,9 @@
 'use strict'
 
 import {env, Uri, workspace} from 'vscode'
+import { debounce } from 'lodash'
 
 const path               = require('path')
-const debounce           = require('lodash.debounce')
 const escapeStringRegexp = require('escape-string-regexp')
 export const fs = require('fs-extra')
 export const pascalcase = require('pascalcase')
