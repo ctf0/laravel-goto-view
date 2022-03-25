@@ -98,7 +98,7 @@ export async function openPath() {
 
         // open if only one
         if (files.length == 1) {
-            return commands.executeCommand('vscode.openFolder', Uri.file(files[0].fileUri))
+            return commands.executeCommand('vscode.open', Uri.file(files[0].fileUri))
         }
 
         // show picker if > one
@@ -115,7 +115,7 @@ export async function openPath() {
             }
         ).then((selection: any) => {
             if (selection) {
-                return commands.executeCommand('vscode.openFolder', Uri.file(selection.detail))
+                return commands.executeCommand('vscode.open', Uri.file(selection.detail))
             }
         })
     }
@@ -146,7 +146,7 @@ export function createFileFromText() {
                     resetLinks.fire(resetLinks)
 
                     if (util.config.activateViewAfterCreation) {
-                        commands.executeCommand('vscode.openFolder', file)
+                        return commands.executeCommand('vscode.open', file)
                     }
                 }
             }
@@ -178,7 +178,7 @@ export async function showSimilarCall(files, query, currentFile) {
     ).then(async (selection: any) => {
         if (selection) {
             if (selection.label != all) {
-                return commands.executeCommand('vscode.openFolder', Uri.file(selection.detail))
+                return commands.executeCommand('vscode.open', Uri.file(selection.detail))
                     .then(() => {
                         setTimeout(() => {
                             let editor = window.activeTextEditor
@@ -193,7 +193,7 @@ export async function showSimilarCall(files, query, currentFile) {
             }
 
             for (const file of files) {
-                await commands.executeCommand('vscode.openFolder', Uri.file(file.detail))
+                await commands.executeCommand('vscode.open', Uri.file(file.detail))
             }
         }
     })

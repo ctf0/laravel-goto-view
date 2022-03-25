@@ -78,3 +78,7 @@
 
 - hide codelens if the view is declared only once
 - add `@stack` to code lens directives list
+
+## 0.4.1
+
+- use the correct file opening command
