@@ -82,3 +82,7 @@
 ## 0.4.1
 
 - use the correct file opening command
+
+## 0.4.2
+
+- make sure path separators are normalized

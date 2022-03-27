@@ -64,9 +64,10 @@ export async function getFilePath(text) {
 async function getData(fullPath, text) {
     let editor       = `${env.uriScheme}://file`
     let fileName     = text.replace(/\./g, sep) + '.blade.php'
-    let filePath     = `${fullPath}${sep}${fileName}`
+    let filePath     = normalizePath(`${fullPath}${sep}${fileName}`)
     let fullFileName = getDocFullPath(filePath, false)
     let exists       = await fs.pathExists(filePath)
+
 
     return exists
         ? {
@@ -81,6 +82,13 @@ async function getData(fullPath, text) {
                     .with({authority: 'ctf0.laravel-goto-view'})
             }
             : false
+}
+
+function normalizePath(path)
+{
+    return path
+            .replace(/\/+/g, '/')
+            .replace(/\+/g, '\\')
 }
 
 function getDocFullPath(path, add = true) {
