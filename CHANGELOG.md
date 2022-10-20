@@ -86,3 +86,7 @@
 ## 0.4.2
 
 - make sure path separators are normalized
+
+## 0.4.3
+
+- make sure path separator are aligned with os

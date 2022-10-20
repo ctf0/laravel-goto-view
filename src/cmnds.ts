@@ -13,6 +13,7 @@ import {
     WorkspaceEdit
 } from 'vscode'
 import * as util from './util'
+import { pascalcase } from 'pascalcase';
 
 export const resetLinks = new EventEmitter()
 
@@ -28,7 +29,7 @@ export async function getFilePath(text) {
         return Promise.all(
             util.vendorPath.map((item) => {
                 return getData(
-                    getWsFullPath(item).replace('*', util.pascalcase(vendor)),
+                    getWsFullPath(item).replace('*', pascalcase(vendor)),
                     key
                 )
             }).concat([

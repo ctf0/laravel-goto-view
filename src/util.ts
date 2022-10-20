@@ -2,11 +2,12 @@
 
 import {env, Uri, workspace} from 'vscode'
 import { debounce } from 'lodash'
+import { pascalcase } from 'pascalcase';
+import escapeStringRegexp from 'escape-string-regexp';
 
-const path               = require('path')
-const escapeStringRegexp = require('escape-string-regexp')
+const path = require('path')
+
 export const fs = require('fs-extra')
-export const pascalcase = require('pascalcase')
 export const sep = path.sep
 
 let ws = null
@@ -67,7 +68,6 @@ async function getData(fullPath, text) {
     let filePath     = normalizePath(`${fullPath}${sep}${fileName}`)
     let fullFileName = getDocFullPath(filePath, false)
     let exists       = await fs.pathExists(filePath)
-
 
     return exists
         ? {
@@ -187,10 +187,14 @@ export let vendorPath: any = []
 export async function readConfig() {
     config                   = workspace.getConfiguration(PACKAGE_NAME)
     methods                  = config.methods.map((e) => (e.includes('?') ? e : escapeStringRegexp(e))).join('|')
-    similarIncludeDirectives = config.similarIncludeDirectives.map((e) => escapeStringRegexp(e)).join('|')
-    defaultPath              = config.defaultPath
-    vendorPath               = config.vendorPath
+    similarIncludeDirectives = config.similarIncludeDirectives.map((e) => escapeStringRegexp(replaceSlash(e))).join('|')
+    defaultPath              = replaceSlash(config.defaultPath)
+    vendorPath               = config.vendorPath.map((item)=> replaceSlash(item))
     showCodeLens             = config.showCodeLens
 
     await saveSimilarIncludeFilesCache()
+}
+
+function replaceSlash(item) {
+    return item.replace(/[\/\\]/g, sep)
 }
