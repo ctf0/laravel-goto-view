@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.4.3",
+    "version": "0.5.0",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.52.0"
@@ -181,7 +181,6 @@
         "@types/node": "^18.11.9",
         "@types/vscode": "^1.52.0",
         "esbuild": "^0.15.13",
-        "tslint": "^5.20.1",
         "typescript": "^4.8.4"
     },
     "dependencies": {

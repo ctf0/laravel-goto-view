@@ -90,3 +90,9 @@
 ## 0.4.3
 
 - make sure path separator are aligned with os
+
+## 0.5.0
+
+- fix link popup not being clickable
+- use a cmnd instead of the uri handler
+- better api

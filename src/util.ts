@@ -1,6 +1,6 @@
 'use strict'
 
-import {env, Uri, workspace} from 'vscode'
+import {Uri, workspace} from 'vscode'
 import { debounce } from 'lodash'
 import { pascalcase } from 'pascalcase';
 import escapeStringRegexp from 'escape-string-regexp';
@@ -63,7 +63,6 @@ export async function getFilePath(text) {
 }
 
 async function getData(fullPath, text) {
-    let editor       = `${env.uriScheme}://file`
     let fileName     = text.replace(/\./g, sep) + '.blade.php'
     let filePath     = normalizePath(`${fullPath}${sep}${fileName}`)
     let fullFileName = getDocFullPath(filePath, false)
@@ -77,9 +76,7 @@ async function getData(fullPath, text) {
         : config.createViewIfNotFound
             ? {
                 tooltip : `create "${fullFileName}"`,
-                fileUri : Uri
-                    .parse(`${editor}${filePath}`)
-                    .with({authority: 'ctf0.laravel-goto-view'})
+                fileUri : Uri.file(filePath)
             }
             : false
 }
