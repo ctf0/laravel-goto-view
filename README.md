@@ -9,6 +9,7 @@ based on https://github.com/codingyu/laravel-goto-view but with better api
 - copy file path
 - open file path
 - show files with similar content via codelens
+- code lenses
 
 ### laravel-modules
 

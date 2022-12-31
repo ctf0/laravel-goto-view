@@ -96,3 +96,9 @@
 - fix link popup not being clickable
 - use a cmnd instead of the uri handler
 - better api
+
+## 0.5.7
+
+- add `copy file path` code lens to blade
+- add `open file path` code lens to php
+- add new config `laravelGotoView.openPathCodelens`

@@ -2,10 +2,10 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.5.5",
+    "version": "0.5.7",
     "publisher": "ctf0",
     "engines": {
-        "vscode": "^1.52.0"
+        "vscode": "^1.68.0"
     },
     "icon": "images/logo.png",
     "repository": "https://github.com/ctf0/laravel-goto-view",
@@ -33,10 +33,6 @@
             {
                 "command": "lgtv.openPath",
                 "title": "Laravel Goto View: Open File From Path"
-            },
-            {
-                "command": "lgtv.showSimilarCall",
-                "title": "Laravel Goto View: show files with similar call"
             }
         ],
         "menus": {
@@ -48,10 +44,6 @@
                 {
                     "command": "lgtv.openPath",
                     "when": "!activeEditor || editorLangId =~ /(php|blade)/"
-                },
-                {
-                    "command": "lgtv.showSimilarCall",
-                    "when": "false"
                 }
             ]
         },
@@ -79,6 +71,18 @@
                     "minItems": 1,
                     "uniqueItems": true,
                     "description": "methods to search for"
+                },
+                "laravelGotoView.openPathCodelens": {
+                    "type": "array",
+                    "default": [
+                        "[vV]iew\\(\\[?$"
+                    ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "description": "text regex to show '#lgtv.openPath#' code lens above"
                 },
                 "laravelGotoView.watchFilesForChanges": {
                     "type": "boolean",
@@ -177,15 +181,15 @@
     },
     "devDependencies": {
         "@types/glob": "^8.0.0",
-        "@types/node": "^18.11.9",
-        "@types/vscode": "^1.52.0",
-        "esbuild": "^0.15.13",
-        "typescript": "^4.8.4"
+        "@types/node": "^18.11.18",
+        "@types/vscode": "^1.68.0",
+        "esbuild": "^0.16.12",
+        "typescript": "^4.9.4"
     },
     "dependencies": {
         "escape-string-regexp": "^5.0.0",
         "find-in": "^0.2.0",
-        "fs-extra": "^10.1.0",
+        "fs-extra": "^11.1.0",
         "lodash": "^4.17.21",
         "pascalcase": "^2.0.0"
     }
