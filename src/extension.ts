@@ -1,6 +1,6 @@
 'use strict';
 
-import { debounce } from 'lodash';
+import debounce from 'lodash.debounce';
 import {
     commands,
     ExtensionContext,
@@ -17,26 +17,30 @@ import * as util from './util';
 let providers = [];
 
 export async function activate(context: ExtensionContext) {
-    await util.readConfig();
+    util.readConfig();
 
     // config
-    workspace.onDidChangeConfiguration(async (e) => {
+    workspace.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration(util.PACKAGE_NAME)) {
-            await util.readConfig();
+            util.readConfig();
         }
     });
 
     // command
-    context.subscriptions.push(commands.registerCommand('lgtv.copyPath', cmnds.copyPath));
-    context.subscriptions.push(commands.registerCommand('lgtv.openPath', cmnds.openPath));
-    context.subscriptions.push(commands.registerCommand('lgtv.showSimilarCall', cmnds.showSimilarCall));
+    context.subscriptions.push(
+        commands.registerCommand('lgtv.copyPath', cmnds.copyPath),
+        commands.registerCommand('lgtv.openPath', cmnds.openPath),
+        commands.registerCommand('lgtv.showSimilarCall', cmnds.showSimilarCall),
+    );
 
     // links
     initProviders();
-    window.onDidChangeActiveTextEditor(async (e) => {
-        await clearAll();
-        initProviders();
-    }),
+    context.subscriptions.push(
+        window.onDidChangeActiveTextEditor(async (e) => {
+            await clearAll();
+            initProviders();
+        }),
+    );
 
     // create
     cmnds.createFileFromText();

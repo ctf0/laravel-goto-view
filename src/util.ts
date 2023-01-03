@@ -1,9 +1,9 @@
 'use strict';
 
 import escapeStringRegexp from 'escape-string-regexp';
-import { debounce } from 'lodash';
+import debounce from 'lodash.debounce';
 import { pascalcase } from 'pascalcase';
-import { Uri, workspace } from 'vscode';
+import { Uri, workspace, WorkspaceConfiguration } from 'vscode';
 
 const path = require('path');
 
@@ -171,7 +171,7 @@ function saveCache(cache_store, text, val) {
 /* Config ------------------------------------------------------------------- */
 export const PACKAGE_NAME = 'laravelGotoView';
 
-export let config: any = {};
+export let config: WorkspaceConfiguration;
 export let methods = '';
 export let similarIncludeDirectives = '';
 export let defaultPath = '';
