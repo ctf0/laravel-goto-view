@@ -3,5 +3,5 @@ node_modules
 .history
 *.vsix
 .DS_Store
-yarn.lock
 package-lock.json
+yarn.lock

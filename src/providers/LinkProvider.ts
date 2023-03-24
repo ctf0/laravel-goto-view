@@ -1,5 +1,6 @@
 'use strict';
 
+import escapeStringRegexp from 'escape-string-regexp';
 import {
     DocumentLink,
     DocumentLinkProvider,
@@ -64,7 +65,7 @@ export default class LinkProvider implements DocumentLinkProvider {
                 const files = await util.getFilePath(text);
                 const range = doc.getWordRangeAtPosition(
                     doc.positionAt(index),
-                    new RegExp(text),
+                    new RegExp(escapeStringRegexp(text)),
                 );
 
                 if (files.length && range) {
