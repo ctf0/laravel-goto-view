@@ -36,7 +36,7 @@ export async function getFilePath(text) {
         ).then((data) => data.filter((e) => e));
     }
 
-    return [getData(internal, text)];
+    return [await getData(internal, text)];
 }
 
 async function getData(fullPath, text) {
@@ -78,7 +78,7 @@ export function copyPath() {
 /* Open --------------------------------------------------------------------- */
 
 export async function openPath() {
-    const path = await window.showInputBox({
+    let filePath = await window.showInputBox({
         placeHolder : 'blade.file.path',
         value       : await env.clipboard.readText() || '',
         validateInput(v) {
@@ -90,8 +90,9 @@ export async function openPath() {
         },
     });
 
-    if (path) {
-        const files: any = await getFilePath(path);
+    if (filePath) {
+        filePath = filePath.replace(/['"]/g, '');
+        const files: any = await getFilePath(filePath);
 
         // open if only one
         if (files.length == 1) {

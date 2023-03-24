@@ -102,3 +102,7 @@
 - add `copy file path` code lens to blade
 - add `open file path` code lens to php
 - add new config `laravelGotoView.openPathCodelens`
+
+## 0.6.0
+
+- fix open file path cmnd
