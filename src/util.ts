@@ -1,16 +1,12 @@
-'use strict';
-
 import escapeStringRegexp from 'escape-string-regexp';
 import debounce from 'lodash.debounce';
 import { pascalcase } from 'pascalcase';
 import { Uri, workspace, WorkspaceConfiguration } from 'vscode';
 
 const path = require('path');
-
 export const fs = require('fs-extra');
 export const sep = path.sep;
-
-let ws = null;
+let ws;
 
 export function setWs(uri) {
     ws = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
@@ -103,8 +99,8 @@ export async function searchForContentInFiles(text) {
     if (!list.length) {
         for (const path of similarIncludeFilesCache) {
             const found = await findInFiles({
-                path    : path,
-                request : [text],
+                path,
+                request: [text],
             });
 
             if (found.some((e) => e.match)) {
@@ -123,15 +119,15 @@ export async function searchForContentInFiles(text) {
 
 /* Content ------------------------------------------------------------------ */
 
-export async function listenForFileChanges() {
+export async function listenForFileChanges(subscriptions) {
     if (config.watchFilesForChange) {
         try {
             const watcher = workspace.createFileSystemWatcher('**/*.blade.php');
 
-            watcher.onDidChange(
-                debounce(async (e) => {
-                    await saveSimilarIncludeFilesCache();
-                }, 60 * 1000),
+            subscriptions.push(
+                watcher.onDidChange(
+                    debounce(async (e) => await saveSimilarIncludeFilesCache(), 60 * 1000),
+                ),
             );
         } catch (error) {
             // console.error(error);

@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.68.0"
@@ -82,7 +82,7 @@
                     },
                     "minItems": 1,
                     "uniqueItems": true,
-                    "description": "text regex to show '#lgtv.openPath#' code lens above"
+                    "description": "text regex to show ('lgtv.openPath' command) code lens above"
                 },
                 "laravelGotoView.watchFilesForChanges": {
                     "type": "boolean",

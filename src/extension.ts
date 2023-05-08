@@ -1,5 +1,3 @@
-'use strict';
-
 import debounce from 'lodash.debounce';
 import {
     commands,
@@ -50,7 +48,7 @@ export async function activate(context: ExtensionContext) {
     });
 
     // .blade files changes
-    await util.listenForFileChanges();
+    await util.listenForFileChanges(context.subscriptions);
 }
 
 const initProviders = debounce(() => {

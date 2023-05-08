@@ -1,5 +1,3 @@
-'use strict';
-
 import { pascalcase } from 'pascalcase';
 import {
     commands,
