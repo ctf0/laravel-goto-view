@@ -2,10 +2,10 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.6.1",
+    "version": "0.6.2",
     "publisher": "ctf0",
     "engines": {
-        "vscode": "^1.68.0"
+        "vscode": "^1.80.0"
     },
     "icon": "images/logo.png",
     "repository": "https://github.com/ctf0/laravel-goto-view",
@@ -92,7 +92,7 @@
                 "laravelGotoView.showCodeLens": {
                     "type": "boolean",
                     "default": true,
-                    "description": "show/hide similar includes code lens"
+                    "description": "show/hide code lenses"
                 },
                 "laravelGotoView.codeLensText": {
                     "type": "string",
@@ -181,15 +181,15 @@
     },
     "devDependencies": {
         "@types/glob": "^8.1.0",
-        "@types/node": "^18.15.6",
-        "@types/vscode": "^1.68.0",
-        "esbuild": "^0.17.12",
-        "typescript": "^5.0.2"
+        "@types/node": "^22.5.0",
+        "@types/vscode": "^1.80.0",
+        "esbuild": "^0.23.1",
+        "typescript": "^5.5.4"
     },
     "dependencies": {
         "escape-string-regexp": "^5.0.0",
         "find-in": "^0.2.0",
-        "fs-extra": "^11.1.1",
+        "fs-extra": "^11.2.0",
         "lodash.debounce": "^4.0.8",
         "pascalcase": "^2.0.0"
     }

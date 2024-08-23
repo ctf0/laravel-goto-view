@@ -44,8 +44,8 @@ async function getData(fullPath, text) {
 
     if (exists) {
         return {
-            tooltip : getWsFullPath(filePath, false),
-            fileUri : filePath,
+            tooltip: getWsFullPath(filePath, false),
+            fileUri: filePath,
         };
     }
 }
@@ -77,8 +77,8 @@ export function copyPath() {
 
 export async function openPath() {
     let filePath = await window.showInputBox({
-        placeHolder : 'blade.file.path',
-        value       : await env.clipboard.readText() || '',
+        placeHolder: 'blade.file.path',
+        value: await env.clipboard.readText() || '',
         validateInput(v) {
             if (!v) {
                 return 'you have to add a path';
@@ -100,12 +100,12 @@ export async function openPath() {
         // show picker if > one
         await window.showQuickPick(
             files.map((file: any) => ({
-                label  : file.tooltip,
-                detail : file.fileUri,
+                label: file.tooltip,
+                detail: file.fileUri,
             })),
             {
-                ignoreFocusOut : true,
-                placeHolder    : 'chose file to open',
+                ignoreFocusOut: true,
+                placeHolder: 'choose file to open',
             },
         ).then((selection: any) => {
             if (selection) {
@@ -158,15 +158,15 @@ export async function showSimilarCall(files, query) {
     const list = len <= 1
         ? files
         : [...files, {
-            label  : all,
-            detail : pad,
+            label: all,
+            detail: pad,
         }];
 
     return window.showQuickPick(
         list,
         {
-            ignoreFocusOut : false,
-            placeHolder    : `chose file to open (${len})`,
+            ignoreFocusOut: false,
+            placeHolder: `chose file to open (${len})`,
         },
     ).then(async (selection: any) => {
         if (selection) {
