@@ -6,6 +6,7 @@ import { Uri, workspace, WorkspaceConfiguration } from 'vscode';
 const path = require('path');
 export const fs = require('fs-extra');
 export const sep = path.sep;
+const scheme = 'command:lgtv.createFileFromText'
 let ws;
 
 export function setWs(uri) {
@@ -61,18 +62,23 @@ async function getData(fullPath, text) {
     const filePath = normalizePath(`${fullPath}${sep}${fileName}`);
     const fullFileName = getDocFullPath(filePath, false);
     const exists = await fs.pathExists(filePath);
+    const args = prepareArgs({ path: filePath });
 
     return exists
         ? {
-            tooltip : fullFileName,
-            fileUri : Uri.file(filePath),
+            tooltip: fullFileName,
+            fileUri: Uri.file(filePath),
         }
         : config.createViewIfNotFound
             ? {
-                tooltip : `create "${fullFileName}"`,
-                fileUri : Uri.file(filePath),
+                tooltip: `create "${fullFileName}"`,
+                fileUri: Uri.parse(`${scheme}?${args}`),
             }
             : false;
+}
+
+function prepareArgs(args: object) {
+    return encodeURIComponent(JSON.stringify([args]));
 }
 
 function normalizePath(path) {
@@ -105,8 +111,8 @@ export async function searchForContentInFiles(text) {
 
             if (found.some((e) => e.match)) {
                 list.push({
-                    label  : getDocFullPath(path, false),
-                    detail : path,
+                    label: getDocFullPath(path, false),
+                    detail: path,
                 });
             }
         }
@@ -157,8 +163,8 @@ function saveCache(cache_store, text, val) {
     checkCache(cache_store, text).length
         ? false
         : cache_store.push({
-            key : text,
-            val : val,
+            key: text,
+            val: val,
         });
 
     return val;

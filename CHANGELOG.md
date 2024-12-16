@@ -106,3 +106,7 @@
 ## 0.6.0
 
 - fix open file path cmnd
+
+## 0.6.3
+
+- fix create unfounded file not working

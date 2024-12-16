@@ -2,10 +2,10 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.6.2",
+    "version": "0.6.3",
     "publisher": "ctf0",
     "engines": {
-        "vscode": "^1.80.0"
+        "vscode": "^1.90.0"
     },
     "icon": "images/logo.png",
     "repository": "https://github.com/ctf0/laravel-goto-view",
@@ -21,7 +21,6 @@
     "activationEvents": [
         "onLanguage:php",
         "onLanguage:blade",
-        "onUri",
         "onStartupFinished"
     ],
     "contributes": {
@@ -33,6 +32,10 @@
             {
                 "command": "lgtv.openPath",
                 "title": "Laravel Goto View: Open File From Path"
+            },
+            {
+                "command": "lgtv.createFileFromText",
+                "title": "Laravel Goto View: Create File From Text"
             }
         ],
         "menus": {
@@ -44,6 +47,10 @@
                 {
                     "command": "lgtv.openPath",
                     "when": "!activeEditor || editorLangId =~ /(php|blade)/"
+                },
+                {
+                    "command": "lgtv.createFileFromText",
+                    "when": "false"
                 }
             ]
         },
@@ -181,10 +188,10 @@
     },
     "devDependencies": {
         "@types/glob": "^8.1.0",
-        "@types/node": "^22.5.0",
-        "@types/vscode": "^1.80.0",
-        "esbuild": "^0.23.1",
-        "typescript": "^5.5.4"
+        "@types/node": "^22.10.2",
+        "@types/vscode": "^1.90.0",
+        "esbuild": "^0.24.0",
+        "typescript": "^5.7.2"
     },
     "dependencies": {
         "escape-string-regexp": "^5.0.0",

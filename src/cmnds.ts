@@ -117,35 +117,30 @@ export async function openPath() {
 
 /* Create ------------------------------------------------------------------- */
 
-export function createFileFromText() {
-    window.registerUriHandler({
-        async handleUri(provider) {
-            const { authority, path } = provider;
+export async function createFileFromText(args) {
+    if (args == undefined) {
+        return
+    }
 
-            if (authority == 'ctf0.laravel-goto-view') {
-                const file = Uri.file(path);
-                const edit = new WorkspaceEdit();
-                edit.createFile(file); // open or create new file
+    let { path } = args
+    const file = Uri.file(path);
+    const edit = new WorkspaceEdit();
+    edit.createFile(file); // open or create new file
 
-                if (util.config.createViewIfNotFound) {
-                    const defVal = util.config.viewDefaultValue;
+    const defVal = util.config.viewDefaultValue;
 
-                    if (defVal) {
-                        edit.insert(file, new Position(0, 0), defVal);
-                    }
+    if (defVal) {
+        edit.insert(file, new Position(0, 0), defVal);
+    }
 
-                    await workspace.applyEdit(edit);
+    await workspace.applyEdit(edit);
 
-                    window.showInformationMessage(`Laravel Goto View: "${path}" created`);
-                    resetLinks.fire(resetLinks);
+    window.showInformationMessage(`Laravel Goto View: "${path}" created`);
+    resetLinks.fire(resetLinks);
 
-                    if (util.config.activateViewAfterCreation) {
-                        return commands.executeCommand('vscode.open', file);
-                    }
-                }
-            }
-        },
-    });
+    if (util.config.activateViewAfterCreation) {
+        return commands.executeCommand('vscode.open', file);
+    }
 }
 
 /* Show Similar ------------------------------------------------------------- */

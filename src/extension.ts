@@ -29,6 +29,7 @@ export async function activate(context: ExtensionContext) {
         commands.registerCommand('lgtv.copyPath', cmnds.copyPath),
         commands.registerCommand('lgtv.openPath', cmnds.openPath),
         commands.registerCommand('lgtv.showSimilarCall', cmnds.showSimilarCall),
+        commands.registerCommand('lgtv.createFileFromText', cmnds.createFileFromText),
     );
 
     // links
@@ -41,7 +42,6 @@ export async function activate(context: ExtensionContext) {
     );
 
     // create
-    cmnds.createFileFromText();
     cmnds.resetLinks.event(async () => {
         await clearAll();
         initProviders();
