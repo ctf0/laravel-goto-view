@@ -8,12 +8,6 @@ import {
 import * as util from '../util';
 
 export default class BladeLensProvider implements CodeLensProvider {
-    similarIncludeDirectives: string;
-
-    constructor() {
-        this.similarIncludeDirectives = util.similarIncludeDirectives;
-    }
-
     async provideCodeLenses(doc: TextDocument): Promise<CodeLens[]> {
         const editor = window.activeTextEditor;
 
@@ -30,25 +24,26 @@ export default class BladeLensProvider implements CodeLensProvider {
 
             const currentFile = uri.path;
             const text = doc.getText();
-            const regex = new RegExp(`(?<=(${this.similarIncludeDirectives})\\()['"]([^$*]*?)['"]`, 'g');
-            const matches = text.matchAll(regex);
+            const regexes = util.similarIncludeDirectives.map((pattern) => new RegExp(pattern, 'g'));
 
-            for (const match of matches) {
-                const found = match[0];
-                const files = [...await util.searchForContentInFiles(found)].filter((file) => file.detail.toLowerCase() != currentFile.toLowerCase());
-                const range = doc.getWordRangeAtPosition(
-                    doc.positionAt(match.index),
-                    regex,
-                );
-
-                if (files.length && range) {
-                    links.push(
-                        new CodeLens(range, {
-                            command   : 'lgtv.showSimilarCall',
-                            title     : util.config.codeLensText.replace('#', files.length),
-                            arguments : [files, found],
-                        }),
+            for (const regex of regexes) {
+                for (const match of text.matchAll(regex)) {
+                    const found = match[match.length - 1] || match[0];
+                    const files = [...await util.searchForContentInFiles(found)].filter((file) => file.detail.toLowerCase() != currentFile.toLowerCase());
+                    const range = doc.getWordRangeAtPosition(
+                        doc.positionAt(match.index),
+                        regex,
                     );
+
+                    if (files.length && range) {
+                        links.push(
+                            new CodeLens(range, {
+                                command   : 'lgtv.showSimilarCall',
+                                title     : util.config.similarCallCodeLens.replace('#', files.length),
+                                arguments : [files, found],
+                            }),
+                        );
+                    }
                 }
             }
 

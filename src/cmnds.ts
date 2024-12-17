@@ -54,7 +54,7 @@ function getWsFullPath(path, add = true) {
     const ws = workspace.workspaceFolders[0]?.uri.fsPath;
 
     return add
-        ? `${ws}${path}`.replace(/[\\\/]/g, util.sep)
+        ? util.replaceSlash(`${ws}${path}`)
         : path.replace(ws, '');
 }
 
@@ -63,14 +63,39 @@ function getWsFullPath(path, add = true) {
 export function copyPath() {
     const editor = window.activeTextEditor;
     const { fileName } = editor.document;
-    const path = fileName
-        .replace(/.*views[\\\/]/, '') // remove start
-        .replace(/\.blade.*/, '')     // remove end
-        .replace(/[\\\/]/g, '.');      // convert
+    let path = fileName
+        .replace(/.*views[\\/]/, '')    // remove start
+        .replace(/\.blade.*/, '')        // remove end
+        .replace(/[\\/]/g, '.');        // convert
 
-    const ph = util.config.copiedPathSurround?.replace('$ph', path) || path;
+    const filePath = fileName.replace(/[\\/]/g, '/');
+    const isComponent = path.startsWith('components.');
 
-    return env.clipboard.writeText(ph);
+    if (isComponent) {
+        path = path.slice('components.'.length);
+    }
+
+    const module = util.config.vendorPath.map((vendorPath) => {
+        const [prefix, suffix] = vendorPath.replace(/[\\/]/g, '/').split('*');
+        const start = filePath.indexOf(prefix);
+        const end = filePath.indexOf(suffix, start + prefix.length);
+
+        return start >= 0 && end > start
+            ? filePath.slice(start + prefix.length, end)
+            : '';
+    }).find((name) => name);
+
+    if (module) {
+        path = `${module.toLowerCase()}::${path}`;
+    }
+
+    const ph = isComponent
+        ? `<x-${path}>`
+        : util.config.copiedPathSurround?.replace('$ph', path) || path;
+
+    env.clipboard.writeText(ph);
+
+    window.showInformationMessage(`Copied: "${ph}"`);
 }
 
 /* Open --------------------------------------------------------------------- */
@@ -148,14 +173,14 @@ export async function createFileFromText(args) {
 export async function showSimilarCall(files, query) {
     const len = files.length;
     const all = `Open All (${len})`;
-    const pad = '-'.repeat(90);
 
     const list = len <= 1
         ? files
         : [...files, {
-            label: all,
-            detail: pad,
+            label: ' ',
+            detail: all,
         }];
+
 
     return window.showQuickPick(
         list,

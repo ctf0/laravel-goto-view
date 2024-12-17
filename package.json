@@ -2,10 +2,10 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.6.3",
+    "version": "0.6.5",
     "publisher": "ctf0",
     "engines": {
-        "vscode": "^1.90.0"
+        "vscode": "^1.110.0"
     },
     "icon": "images/logo.png",
     "repository": "https://github.com/ctf0/laravel-goto-view",
@@ -70,7 +70,9 @@
                         "links",
                         "template",
                         "markdown",
-                        "defaultView"
+                        "defaultView",
+                        "View::composer",
+                        "View::creator"
                     ],
                     "items": {
                         "type": "string"
@@ -101,7 +103,7 @@
                     "default": true,
                     "description": "show/hide code lenses"
                 },
-                "laravelGotoView.codeLensText": {
+                "laravelGotoView.similarCallCodeLens": {
                     "type": "string",
                     "default": "$(loading~spin) show files with similar call (#)",
                     "markdownDescription": "codelens command text\n\nrequire `#laravelGotoView.showCodeLens#`\n\n[$(icon-name)](https://microsoft.github.io/vscode-codicons/dist/codicon.html)\n\n\\# == placeholder for files length (remove it to disable this feature)"
@@ -109,13 +111,8 @@
                 "laravelGotoView.similarIncludeDirectives": {
                     "type": "array",
                     "default": [
-                        "@include",
-                        "@extends",
-                        "@component",
-                        "@each",
-                        "@yield",
-                        "@section",
-                        "@stack"
+                        "(@include|@extends|@component|@each|@yield|@section|@stack)\\(['\"]([^$*]*?)['\"]",
+                        "<x-[\\w:.-]+"
                     ],
                     "items": {
                         "type": "string"
@@ -128,7 +125,7 @@
                     "type": "array",
                     "default": [
                         "resources/views/**/*blade*",
-                        "Modules/**/*blade*"
+                        "modules/**/*blade*"
                     ],
                     "items": {
                         "type": "string"
@@ -166,7 +163,7 @@
                 "laravelGotoView.vendorPath": {
                     "type": "array",
                     "default": [
-                        "/Modules/*/Resources/views"
+                        "/modules/*/resources/views"
                     ],
                     "items": {
                         "type": "string"
@@ -187,16 +184,16 @@
         "watch": "npm run esbuild"
     },
     "devDependencies": {
-        "@types/glob": "^8.1.0",
-        "@types/node": "^22.10.2",
-        "@types/vscode": "^1.90.0",
-        "esbuild": "^0.24.0",
-        "typescript": "^5.7.2"
+        "@types/glob": "^9.0.0",
+        "@types/node": "^26.1.1",
+        "@types/vscode": "^1.110.0",
+        "esbuild": "^0.28.1",
+        "typescript": "^7.0.2"
     },
     "dependencies": {
         "escape-string-regexp": "^5.0.0",
         "find-in": "^0.2.0",
-        "fs-extra": "^11.2.0",
+        "fs-extra": "^11.3.6",
         "lodash.debounce": "^4.0.8",
         "pascalcase": "^2.0.0"
     }

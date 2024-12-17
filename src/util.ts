@@ -89,7 +89,7 @@ function normalizePath(path) {
 
 function getDocFullPath(path, add = true) {
     return add
-        ? `${ws}${path}`.replace(/[\\\/]/g, sep)
+        ? util.replaceSlash(`${ws}${path}`)
         : path.replace(`${ws}${sep}`, '');
 }
 
@@ -175,20 +175,20 @@ export const PACKAGE_NAME = 'laravelGotoView';
 
 export let config: WorkspaceConfiguration;
 export let methods = '';
-export let similarIncludeDirectives = '';
+export let similarIncludeDirectives: any = [];
 export let defaultPath = '';
 export let vendorPath: any = [];
 
 export async function readConfig() {
     config = workspace.getConfiguration(PACKAGE_NAME);
     methods = config.methods.map((e) => (e.includes('?') ? e : escapeStringRegexp(e))).join('|');
-    similarIncludeDirectives = config.similarIncludeDirectives.map((e) => escapeStringRegexp(replaceSlash(e))).join('|');
+    similarIncludeDirectives = config.similarIncludeDirectives;
     defaultPath = replaceSlash(config.defaultPath);
     vendorPath = config.vendorPath.map((item) => replaceSlash(item));
 
     await saveSimilarIncludeFilesCache();
 }
 
-function replaceSlash(item) {
-    return item.replace(/[\/\\]/g, sep);
+export function replaceSlash(item) {
+    return item.replace(/[\\/]/g, sep);
 }
