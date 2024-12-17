@@ -54,7 +54,7 @@ function getWsFullPath(path, add = true) {
     const ws = workspace.workspaceFolders[0]?.uri.fsPath;
 
     return add
-        ? `${ws}${path}`.replace(/[\\\/]/g, util.sep)
+        ? util.replaceSlash(`${ws}${path}`)
         : path.replace(ws, '');
 }
 
@@ -64,13 +64,15 @@ export function copyPath() {
     const editor = window.activeTextEditor;
     const { fileName } = editor.document;
     const path = fileName
-        .replace(/.*views[\\\/]/, '') // remove start
-        .replace(/\.blade.*/, '')     // remove end
-        .replace(/[\\\/]/g, '.');      // convert
+        .replace(/.*views[\\/]/, '')    // remove start
+        .replace(/\.blade.*/, '')        // remove end
+        .replace(/[\\/]/g, '.');        // convert
 
     const ph = util.config.copiedPathSurround?.replace('$ph', path) || path;
 
-    return env.clipboard.writeText(ph);
+    env.clipboard.writeText(ph);
+
+    window.showInformationMessage(`Copied: "${ph}"`);
 }
 
 /* Open --------------------------------------------------------------------- */
@@ -148,13 +150,11 @@ export async function createFileFromText(args) {
 export async function showSimilarCall(files, query) {
     const len = files.length;
     const all = `Open All (${len})`;
-    const pad = '-'.repeat(90);
 
     const list = len <= 1
         ? files
         : [...files, {
             label: all,
-            detail: pad,
         }];
 
     return window.showQuickPick(

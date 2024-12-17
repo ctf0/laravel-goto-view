@@ -89,7 +89,7 @@ function normalizePath(path) {
 
 function getDocFullPath(path, add = true) {
     return add
-        ? `${ws}${path}`.replace(/[\\\/]/g, sep)
+        ? util.replaceSlash(`${ws}${path}`)
         : path.replace(`${ws}${sep}`, '');
 }
 
@@ -190,5 +190,5 @@ export async function readConfig() {
 }
 
 function replaceSlash(item) {
-    return item.replace(/[\/\\]/g, sep);
+    return item.replace(/[\\/]/g, sep);
 }
