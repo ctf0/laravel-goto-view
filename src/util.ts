@@ -89,7 +89,7 @@ function normalizePath(path) {
 
 function getDocFullPath(path, add = true) {
     return add
-        ? util.replaceSlash(`${ws}${path}`)
+        ? replaceSlash(`${ws}${path}`)
         : path.replace(`${ws}${sep}`, '');
 }
 
