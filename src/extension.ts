@@ -1,28 +1,28 @@
-import debounce from 'lodash.debounce';
+import debounce from 'lodash.debounce'
 import {
     commands,
     ExtensionContext,
     languages,
     window,
     workspace,
-} from 'vscode';
-import * as cmnds from './cmnds';
-import BladeLensProvider from './providers/BladeLensProvider';
-import LinkProvider from './providers/LinkProvider';
-import PhpLensProvider from './providers/PhpLensProvider';
-import * as util from './util';
+} from 'vscode'
+import * as cmnds from './cmnds'
+import BladeLensProvider from './providers/BladeLensProvider'
+import LinkProvider from './providers/LinkProvider'
+import PhpLensProvider from './providers/PhpLensProvider'
+import * as util from './util'
 
-let providers = [];
+let providers = []
 
 export async function activate(context: ExtensionContext) {
-    util.readConfig();
+    util.readConfig()
 
     // config
     workspace.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration(util.PACKAGE_NAME)) {
-            util.readConfig();
+            util.readConfig()
         }
-    });
+    })
 
     // command
     context.subscriptions.push(
@@ -30,46 +30,45 @@ export async function activate(context: ExtensionContext) {
         commands.registerCommand('lgtv.openPath', cmnds.openPath),
         commands.registerCommand('lgtv.showSimilarCall', cmnds.showSimilarCall),
         commands.registerCommand('lgtv.createFileFromText', cmnds.createFileFromText),
-    );
+    )
 
     // links
-    initProviders();
+    initProviders()
     context.subscriptions.push(
-        window.onDidChangeActiveTextEditor(async (e) => {
-            await clearAll();
-            initProviders();
+        window.onDidChangeActiveTextEditor(async(e) => {
+            await clearAll()
+            initProviders()
         }),
-    );
+    )
 
     // create
-    cmnds.resetLinks.event(async () => {
-        await clearAll();
-        initProviders();
-    });
+    cmnds.resetLinks.event(async() => {
+        await clearAll()
+        initProviders()
+    })
 
     // .blade files changes
-    await util.listenForFileChanges(context.subscriptions);
+    await util.listenForFileChanges(context.subscriptions)
 }
 
 const initProviders = debounce(() => {
-    providers.push(languages.registerDocumentLinkProvider(['php', 'blade'], new LinkProvider()));
+    providers.push(languages.registerDocumentLinkProvider(['php', 'blade'], new LinkProvider()))
 
     if (util.config.showCodeLens) {
-        providers.push(languages.registerCodeLensProvider(['blade'], new BladeLensProvider()));
-        providers.push(languages.registerCodeLensProvider(['php'], new PhpLensProvider()));
+        providers.push(languages.registerCodeLensProvider(['blade'], new BladeLensProvider()))
+        providers.push(languages.registerCodeLensProvider(['php'], new PhpLensProvider()))
     }
-}, 250);
-
+}, 250)
 
 function clearAll() {
     return new Promise((res, rej) => {
-        providers.map((e) => e.dispose());
-        providers = [];
+        providers.map((e) => e.dispose())
+        providers = []
 
-        setTimeout(() => res(true), 500);
-    });
+        setTimeout(() => res(true), 500)
+    })
 }
 
 export function deactivate() {
-    clearAll();
+    clearAll()
 }

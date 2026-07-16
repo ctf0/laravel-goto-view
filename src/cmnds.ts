@@ -1,4 +1,4 @@
-import { pascalcase } from 'pascalcase';
+import {pascalcase} from 'pascalcase'
 import {
     commands,
     env,
@@ -10,19 +10,19 @@ import {
     window,
     workspace,
     WorkspaceEdit,
-} from 'vscode';
-import * as util from './util';
+} from 'vscode'
+import * as util from './util'
 
-export const resetLinks = new EventEmitter();
+export const resetLinks = new EventEmitter()
 
 export async function getFilePath(text) {
-    const internal = getWsFullPath(util.defaultPath);
-    const char = '::';
+    const internal = getWsFullPath(util.defaultPath)
+    const char = '::'
 
     if (text.includes(char)) {
-        text = text.split(char);
-        const vendor = text[0];
-        const key = text[1];
+        text = text.split(char)
+        const vendor = text[0]
+        const key = text[1]
 
         return Promise.all(
             util.vendorPath.map((item) => getData(
@@ -31,112 +31,112 @@ export async function getFilePath(text) {
             )).concat([
                 getData(`${internal}${util.sep}vendor${util.sep}${vendor}`, key),
             ]),
-        ).then((data) => data.filter((e) => e));
+        ).then((data) => data.filter((e) => e))
     }
 
-    return [await getData(internal, text)];
+    return [await getData(internal, text)]
 }
 
 async function getData(fullPath, text) {
-    const fileName = text.replace(/\./g, util.sep) + '.blade.php';
-    const filePath = `${fullPath}${util.sep}${fileName}`;
-    const exists = await util.fs.pathExists(filePath);
+    const fileName = text.replace(/\./g, util.sep) + '.blade.php'
+    const filePath = `${fullPath}${util.sep}${fileName}`
+    const exists = await util.fs.pathExists(filePath)
 
     if (exists) {
         return {
-            tooltip: getWsFullPath(filePath, false),
-            fileUri: filePath,
-        };
+            tooltip : getWsFullPath(filePath, false),
+            fileUri : filePath,
+        }
     }
 }
 
 function getWsFullPath(path, add = true) {
-    const ws = workspace.workspaceFolders[0]?.uri.fsPath;
+    const ws = workspace.workspaceFolders[0]?.uri.fsPath
 
     return add
         ? util.replaceSlash(`${ws}${path}`)
-        : path.replace(ws, '');
+        : path.replace(ws, '')
 }
 
 /* Copy --------------------------------------------------------------------- */
 
 export function copyPath() {
-    const editor = window.activeTextEditor;
-    const { fileName } = editor.document;
+    const editor = window.activeTextEditor
+    const {fileName} = editor.document
     let path = fileName
         .replace(/.*views[\\/]/, '')    // remove start
         .replace(/\.blade.*/, '')        // remove end
-        .replace(/[\\/]/g, '.');        // convert
+        .replace(/[\\/]/g, '.')        // convert
 
-    const filePath = fileName.replace(/[\\/]/g, '/');
-    const isComponent = path.startsWith('components.');
+    const filePath = fileName.replace(/[\\/]/g, '/')
+    const isComponent = path.startsWith('components.')
 
     if (isComponent) {
-        path = path.slice('components.'.length);
+        path = path.slice('components.'.length)
     }
 
     const module = util.config.vendorPath.map((vendorPath) => {
-        const [prefix, suffix] = vendorPath.replace(/[\\/]/g, '/').split('*');
-        const start = filePath.indexOf(prefix);
-        const end = filePath.indexOf(suffix, start + prefix.length);
+        const [prefix, suffix] = vendorPath.replace(/[\\/]/g, '/').split('*')
+        const start = filePath.indexOf(prefix)
+        const end = filePath.indexOf(suffix, start + prefix.length)
 
         return start >= 0 && end > start
             ? filePath.slice(start + prefix.length, end)
-            : '';
-    }).find((name) => name);
+            : ''
+    }).find((name) => name)
 
     if (module) {
-        path = `${module.toLowerCase()}::${path}`;
+        path = `${module.toLowerCase()}::${path}`
     }
 
     const ph = isComponent
         ? `<x-${path}>`
-        : util.config.copiedPathSurround?.replace('$ph', path) || path;
+        : util.config.copiedPathSurround?.replace('$ph', path) || path
 
-    env.clipboard.writeText(ph);
+    env.clipboard.writeText(ph)
 
-    window.showInformationMessage(`Copied: "${ph}"`);
+    window.showInformationMessage(`Copied: "${ph}"`)
 }
 
 /* Open --------------------------------------------------------------------- */
 
 export async function openPath() {
     let filePath = await window.showInputBox({
-        placeHolder: 'blade.file.path',
-        value: await env.clipboard.readText() || '',
+        placeHolder : 'blade.file.path',
+        value       : await env.clipboard.readText() || '',
         validateInput(v) {
             if (!v) {
-                return 'you have to add a path';
+                return 'you have to add a path'
             } else {
-                return '';
+                return ''
             }
         },
-    });
+    })
 
     if (filePath) {
-        filePath = filePath.replace(/['"]/g, '');
-        const files: any = await getFilePath(filePath);
+        filePath = filePath.replace(/['"]/g, '')
+        const files: any = await getFilePath(filePath)
 
         // open if only one
         if (files.length == 1) {
-            return commands.executeCommand('vscode.open', Uri.file(files[0].fileUri));
+            return commands.executeCommand('vscode.open', Uri.file(files[0].fileUri))
         }
 
         // show picker if > one
         await window.showQuickPick(
             files.map((file: any) => ({
-                label: file.tooltip,
-                detail: file.fileUri,
+                label   : file.tooltip,
+                fileUri : file.fileUri,
             })),
             {
-                ignoreFocusOut: true,
-                placeHolder: 'choose file to open',
+                ignoreFocusOut : true,
+                placeHolder    : 'choose file to open',
             },
         ).then((selection: any) => {
             if (selection) {
-                return commands.executeCommand('vscode.open', Uri.file(selection.detail));
+                return commands.executeCommand('vscode.open', Uri.file(selection.fileUri))
             }
-        });
+        })
     }
 }
 
@@ -147,78 +147,77 @@ export async function createFileFromText(args) {
         return
     }
 
-    let { path } = args
-    const file = Uri.file(path);
-    const edit = new WorkspaceEdit();
-    edit.createFile(file); // open or create new file
+    const {path} = args
+    const file = Uri.file(path)
+    const edit = new WorkspaceEdit()
+    edit.createFile(file) // open or create new file
 
-    const defVal = util.config.viewDefaultValue;
+    const defVal = util.config.viewDefaultValue
 
     if (defVal) {
-        edit.insert(file, new Position(0, 0), defVal);
+        edit.insert(file, new Position(0, 0), defVal)
     }
 
-    await workspace.applyEdit(edit);
+    await workspace.applyEdit(edit)
 
-    window.showInformationMessage(`Laravel Goto View: "${path}" created`);
-    resetLinks.fire(resetLinks);
+    window.showInformationMessage(`Laravel Goto View: "${path}" created`)
+    resetLinks.fire(resetLinks)
 
     if (util.config.activateViewAfterCreation) {
-        return commands.executeCommand('vscode.open', file);
+        return commands.executeCommand('vscode.open', file)
     }
 }
 
 /* Show Similar ------------------------------------------------------------- */
 
 export async function showSimilarCall(files, query) {
-    const len = files.length;
-    const all = `Open All (${len})`;
+    const len = files.length
+    const all = `Open All (${len})`
 
     const list = len <= 1
         ? files
         : [...files, {
-            label: ' ',
-            detail: all,
-        }];
-
+            label  : ' ',
+            detail : all,
+        }]
 
     return window.showQuickPick(
         list,
         {
-            ignoreFocusOut: false,
-            placeHolder: `chose file to open (${len})`,
+            ignoreFocusOut : false,
+            placeHolder    : `chose file to open (${len})`,
         },
-    ).then(async (selection: any) => {
+    ).then(async(selection: any) => {
         if (selection) {
-            if (selection.label != all) {
-                return commands.executeCommand('vscode.open', Uri.file(selection.detail))
+            if (selection.detail != all) {
+                return commands.executeCommand('vscode.open', Uri.file(selection.absolutePath))
                     .then(() => {
                         setTimeout(() => {
-                            const editor = window.activeTextEditor;
-                            const range = getTextPosition(query, editor.document);
+                            const editor = window.activeTextEditor
+                            const range = getTextPosition(query, editor.document)
 
                             if (range) {
-                                editor.selection = new Selection(range.start, range.end);
-                                editor.revealRange(range, 3);
+                                editor.selection = new Selection(range.start, range.end)
+                                editor.revealRange(range, 3)
                             }
-                        }, 500);
-                    });
+                        }, 500)
+                    })
             }
 
             for (const file of files) {
-                await commands.executeCommand('vscode.open', Uri.file(file.detail));
+                await commands.executeCommand('vscode.open', Uri.file(file.absolutePath))
             }
         }
-    });
+    })
 }
 
 function getTextPosition(searchFor, doc) {
-    const regex = new RegExp(searchFor);
-    const match = regex.exec(doc.getText());
+    const regex = new RegExp(searchFor)
+    const match = regex.exec(doc.getText())
 
     if (match) {
-        const pos = doc.positionAt(match.index + match[0].length);
+        const pos = doc.positionAt(match.index + match[0].length)
 
-        return new Range(pos, pos);
+        return new Range(pos, pos)
     }
 }
