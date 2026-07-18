@@ -110,3 +110,10 @@
 ## 0.6.3
 
 - fix create unfounded file not working
+
+## 0.6.8
+
+- add separate search method settings for Blade, PHP, and shared view variables
+- add links between shared PHP variables and their Blade usages
+- show PHP callers for the current Blade view in a code lens
+- ignore `<x-slot>` when finding similar component includes

@@ -3,6 +3,7 @@ import {
     CodeLensProvider, TextDocument,
     window,
 } from 'vscode'
+import * as cache from '../libs/cache'
 import * as util from '../util'
 
 export default class PhpLensProvider implements CodeLensProvider {
@@ -11,6 +12,12 @@ export default class PhpLensProvider implements CodeLensProvider {
 
         if (editor) {
             const {uri} = doc
+            const cached = cache.get('phpLens', doc)
+
+            if (cached) {
+                return cached
+            }
+
             util.setWs(uri)
 
             const links = []
@@ -31,6 +38,8 @@ export default class PhpLensProvider implements CodeLensProvider {
                     }),
                 )
             }
+
+            cache.set('phpLens', doc, links)
 
             return links
         }

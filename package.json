@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.6.7",
+    "version": "0.6.8",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.110.0"
@@ -58,13 +58,24 @@
             "type": "object",
             "title": "Laravel Goto View",
             "properties": {
-                "laravelGotoView.methods": {
+                "laravelGotoView.bladeMethods": {
                     "type": "array",
                     "default": [
                         "@include",
                         "@extends",
                         "@component",
-                        "@each",
+                        "@each"
+                    ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "description": "methods to search for in blade"
+                },
+                "laravelGotoView.phpMethods": {
+                    "type": "array",
+                    "default": [
                         "(?<!Route::)view",
                         "view()->composer",
                         "links",
@@ -79,7 +90,25 @@
                     },
                     "minItems": 1,
                     "uniqueItems": true,
-                    "description": "methods to search for"
+                    "description": "methods to search for in php"
+                },
+                "laravelGotoView.viewShareMethods": {
+                    "type": "array",
+                    "default": [
+                        "View::share",
+                        "$view->with"
+                    ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "description": "methods to search for viewShare variables"
+                },
+                "laravelGotoView.viewShareVariablePrefix": {
+                    "type": "string",
+                    "default": "_",
+                    "markdownDescription": "viewShare variable prefix"
                 },
                 "laravelGotoView.openPathCodelens": {
                     "type": "array",
@@ -112,7 +141,7 @@
                     "type": "array",
                     "default": [
                         "(@include|@extends|@component|@each|@yield|@section|@stack)\\(['\"]([^$*]*?)['\"]",
-                        "<x-[\\w:.-]+"
+                        "<x-(?!slot\\b)[\\w:.-]+"
                     ],
                     "items": {
                         "type": "string"

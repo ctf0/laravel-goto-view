@@ -14,6 +14,7 @@ export function setWs(uri) {
 }
 
 /* Link --------------------------------------------------------------------- */
+export const routeViewRegex = '(?<=Route::view\\()(?:.*,( +)?)([\'"]([^$*]*?)[\'"])'
 const cache_store_link = []
 
 export async function getFilePath(text) {
@@ -175,16 +176,38 @@ export const PACKAGE_NAME = 'laravelGotoView'
 
 export let config: WorkspaceConfiguration
 export let methods = ''
+export let bladeMethods = ''
+export let phpMethods = ''
+export let viewShareMethods = ''
+export let viewSharePrefix = {
+    blade : '',
+    php   : '',
+}
 export let similarIncludeDirectives: any = []
 export let defaultPath = ''
 export let vendorPath: any = []
+export let baseExclude: any = []
 
 export async function readConfig() {
     config = workspace.getConfiguration(PACKAGE_NAME)
-    methods = config.methods.map((e) => (e.includes('?') ? e : escapeStringRegexp(e))).join('|')
+
+    bladeMethods = config.bladeMethods.map((e) => (e.includes('?') ? e : escapeStringRegexp(e))).join('|')
+    phpMethods = config.phpMethods.map((e) => (e.includes('?') ? e : escapeStringRegexp(e))).join('|')
+    methods = [...config.phpMethods, ...config.bladeMethods].map((e) => (e.includes('?') ? e : escapeStringRegexp(e))).join('|')
+
+    viewShareMethods = config.viewShareMethods.map((e) => (e.includes('?') ? e : escapeStringRegexp(e))).join('|')
+    viewSharePrefix = {
+        blade : escapeStringRegexp(`$${config.viewShareVariablePrefix}`),
+        php   : escapeStringRegexp(config.viewShareVariablePrefix),
+    }
+
     similarIncludeDirectives = config.similarIncludeDirectives
     defaultPath = replaceSlash(config.defaultPath)
     vendorPath = config.vendorPath.map((item) => replaceSlash(item))
+
+    baseExclude = Object.entries(workspace.getConfiguration('files').get('exclude', {}))
+        .filter(([pattern, excluded]) => excluded)
+        .map(([pattern]) => pattern)
 
     await saveSimilarIncludeFilesCache()
 }

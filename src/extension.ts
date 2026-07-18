@@ -6,7 +6,8 @@ import {
     window,
     workspace,
 } from 'vscode'
-import * as cmnds from './cmnds'
+import {clear as clearCache} from './libs/cache'
+import * as cmnds from './libs/cmnds'
 import BladeLensProvider from './providers/BladeLensProvider'
 import LinkProvider from './providers/LinkProvider'
 import PhpLensProvider from './providers/PhpLensProvider'
@@ -21,14 +22,21 @@ export async function activate(context: ExtensionContext) {
     workspace.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration(util.PACKAGE_NAME)) {
             util.readConfig()
+            clearCache()
         }
     })
+
+    context.subscriptions.push(
+        workspace.onDidChangeTextDocument(() => {
+            clearCache()
+        }),
+    )
 
     // command
     context.subscriptions.push(
         commands.registerCommand('lgtv.copyPath', cmnds.copyPath),
         commands.registerCommand('lgtv.openPath', cmnds.openPath),
-        commands.registerCommand('lgtv.showSimilarCall', cmnds.showSimilarCall),
+        commands.registerCommand('lgtv.showSimilarCall', cmnds.filesPicker),
         commands.registerCommand('lgtv.createFileFromText', cmnds.createFileFromText),
     )
 
@@ -43,6 +51,7 @@ export async function activate(context: ExtensionContext) {
 
     // create
     cmnds.resetLinks.event(async() => {
+        clearCache()
         await clearAll()
         initProviders()
     })

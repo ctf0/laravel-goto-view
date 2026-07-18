@@ -11,7 +11,7 @@ import {
     workspace,
     WorkspaceEdit,
 } from 'vscode'
-import * as util from './util'
+import * as util from '../util'
 
 export const resetLinks = new EventEmitter()
 
@@ -60,21 +60,17 @@ function getWsFullPath(path, add = true) {
 
 /* Copy --------------------------------------------------------------------- */
 
-export function copyPath() {
-    const editor = window.activeTextEditor
-    const {fileName} = editor.document
-    let path = fileName
+export function getViewName(fileName: string): string {
+    const rawPath = fileName
         .replace(/.*views[\\/]/, '')    // remove start
         .replace(/\.blade.*/, '')        // remove end
         .replace(/[\\/]/g, '.')        // convert
 
+    const path = rawPath.startsWith('components.')
+        ? rawPath.slice('components.'.length)
+        : rawPath
+
     const filePath = fileName.replace(/[\\/]/g, '/')
-    const isComponent = path.startsWith('components.')
-
-    if (isComponent) {
-        path = path.slice('components.'.length)
-    }
-
     const module = util.config.vendorPath.map((vendorPath) => {
         const [prefix, suffix] = vendorPath.replace(/[\\/]/g, '/').split('*')
         const start = filePath.indexOf(prefix)
@@ -85,9 +81,18 @@ export function copyPath() {
             : ''
     }).find((name) => name)
 
-    if (module) {
-        path = `${module.toLowerCase()}::${path}`
-    }
+    return module ? `${module.toLowerCase()}::${path}` : path
+}
+
+export function copyPath() {
+    const editor = window.activeTextEditor
+    const {fileName} = editor.document
+    const path = getViewName(fileName)
+    const isComponent = fileName
+        .replace(/.*views[\\/]/, '')
+        .replace(/\.blade.*/, '')
+        .replace(/[\\/]/g, '.')
+        .startsWith('components.')
 
     const ph = isComponent
         ? `<x-${path}>`
@@ -119,7 +124,7 @@ export async function openPath() {
 
         // open if only one
         if (files.length == 1) {
-            return commands.executeCommand('vscode.open', Uri.file(files[0].fileUri))
+            return openFile(files[0])
         }
 
         // show picker if > one
@@ -134,7 +139,7 @@ export async function openPath() {
             },
         ).then((selection: any) => {
             if (selection) {
-                return commands.executeCommand('vscode.open', Uri.file(selection.fileUri))
+                return openFile(selection)
             }
         })
     }
@@ -164,22 +169,25 @@ export async function createFileFromText(args) {
     resetLinks.fire(resetLinks)
 
     if (util.config.activateViewAfterCreation) {
-        return commands.executeCommand('vscode.open', file)
+        return openFile(file)
     }
 }
 
 /* Show Similar ------------------------------------------------------------- */
 
-export async function showSimilarCall(files, query) {
+export async function filesPicker(files, query) {
     const len = files.length
+
+    if (len == 1) {
+        return openFile(files[0], query)
+    }
+
     const all = `Open All (${len})`
 
-    const list = len <= 1
-        ? files
-        : [...files, {
-            label  : ' ',
-            detail : all,
-        }]
+    const list = [...files, {
+        label  : ' ',
+        detail : all,
+    }]
 
     return window.showQuickPick(
         list,
@@ -190,34 +198,44 @@ export async function showSimilarCall(files, query) {
     ).then(async(selection: any) => {
         if (selection) {
             if (selection.detail != all) {
-                return commands.executeCommand('vscode.open', Uri.file(selection.absolutePath))
-                    .then(() => {
-                        setTimeout(() => {
-                            const editor = window.activeTextEditor
-                            const range = getTextPosition(query, editor.document)
-
-                            if (range) {
-                                editor.selection = new Selection(range.start, range.end)
-                                editor.revealRange(range, 3)
-                            }
-                        }, 500)
-                    })
+                return openFile(selection, query)
             }
 
             for (const file of files) {
-                await commands.executeCommand('vscode.open', Uri.file(file.absolutePath))
+                await openFile(file)
             }
         }
     })
 }
 
+function openFile(file: any, query: any) {
+    return commands.executeCommand('vscode.open', Uri.file(file.absolutePath))
+        .then(() => {
+            if (query) {
+                setTimeout(() => {
+                    const editor = window.activeTextEditor
+                    const range = getTextPosition(query, editor.document)
+
+                    if (range) {
+                        editor.selection = new Selection(range.start, range.end)
+                        editor.revealRange(range, 3)
+                    }
+                }, 500)
+            }
+        })
+}
+
 function getTextPosition(searchFor, doc) {
-    const regex = new RegExp(searchFor)
-    const match = regex.exec(doc.getText())
+    const queries = Array.isArray(searchFor) ? searchFor : [searchFor]
+    const text = doc.getText()
 
-    if (match) {
-        const pos = doc.positionAt(match.index + match[0].length)
+    for (const query of queries) {
+        const match = new RegExp(query).exec(text)
 
-        return new Range(pos, pos)
+        if (match) {
+            const pos = doc.positionAt(match.index + match[0].length)
+
+            return new Range(pos, pos)
+        }
     }
 }
