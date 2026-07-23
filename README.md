@@ -9,7 +9,7 @@ based on https://github.com/codingyu/laravel-goto-view but with better api
 - copy file path
 - open file path
 - show files with similar content via codelens
-- code lenses
+- code lenses (show similar calls for `partials/components`, open php caller, jump to view `share/composer vars`)
 
 ### laravel-modules
 

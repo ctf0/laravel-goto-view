@@ -1,3 +1,4 @@
+import escapeStringRegexp from 'escape-string-regexp'
 import {pascalcase} from 'pascalcase'
 import {
     commands,
@@ -230,7 +231,7 @@ function getTextPosition(searchFor, doc) {
     const text = doc.getText()
 
     for (const query of queries) {
-        const match = new RegExp(query).exec(text)
+        const match = new RegExp(escapeStringRegexp(query)).exec(text)
 
         if (match) {
             const pos = doc.positionAt(match.index + match[0].length)
