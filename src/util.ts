@@ -215,3 +215,120 @@ export async function readConfig() {
 export function replaceSlash(item) {
     return item.replace(/[\\/]/g, sep)
 }
+
+/* View Name ---------------------------------------------------------------- */
+
+export function getViewName(fileName: string): string {
+    const rawPath = fileName
+        .replace(/.*views[\\/]/, '')    // remove start
+        .replace(/\.blade.*/, '')        // remove end
+        .replace(/[\\/]/g, '.')        // convert
+
+    const path = rawPath.startsWith('components.')
+        ? rawPath.slice('components.'.length)
+        : rawPath
+
+    const filePath = fileName.replace(/[\\/]/g, '/')
+    const module = vendorPath.map((vendorPath) => {
+        const [prefix, suffix] = vendorPath.replace(/[\\/]/g, '/').split('*')
+        const start = filePath.indexOf(prefix)
+        const end = filePath.indexOf(suffix, start + prefix.length)
+
+        return start >= 0 && end > start
+            ? filePath.slice(start + prefix.length, end)
+            : ''
+    }).find((name) => name)
+
+    return module ? `${module.toLowerCase()}::${path}` : path
+}
+
+export function getViewNames(fsPath: string): string[] {
+    const viewName = getViewName(fsPath)
+    const componentPath = fsPath
+        .replace(/.*views[\\/]/, '')
+        .replace(/\.blade.*/, '')
+        .replace(/[\\/]/g, '.')
+
+    return componentPath.startsWith('components.')
+        ? [
+            viewName,
+            viewName.includes('::')
+                ? viewName.replace('::', '::components.')
+                : `components.${viewName}`,
+        ]
+        : [viewName]
+}
+
+const phpCallersCache = new Map<string, {result: any[], timestamp: number}>()
+const phpCallersInflight = new Map<string, Promise<any[]>>()
+
+export function clearPhpCallersCache() {
+    phpCallersCache.clear()
+    phpCallersInflight.clear()
+}
+
+function phpCallersCacheKey(viewNames: string[]) {
+    return viewNames.slice().sort().join('\x00')
+}
+
+export async function findPhpCallers(viewNames: string[]) {
+    const key = phpCallersCacheKey(viewNames)
+
+    // return fresh cached result
+    const cached = phpCallersCache.get(key)
+
+    if (cached && Date.now() - cached.timestamp < 30_000) {
+        return cached.result
+    }
+
+    // dedup concurrent in-flight calls
+    const inflight = phpCallersInflight.get(key)
+
+    if (inflight) {
+        return inflight
+    }
+
+    const promise = findPhpCallersRaw(viewNames)
+    phpCallersInflight.set(key, promise)
+
+    try {
+        const result = await promise
+        phpCallersCache.set(key, {result, timestamp: Date.now()})
+
+        return result
+    } finally {
+        phpCallersInflight.delete(key)
+    }
+}
+
+async function findPhpCallersRaw(viewNames: string[]) {
+    const files = await workspace.findFiles('**/*.php', getPhpExclude())
+    const regex = new RegExp(`(?<=(${phpMethods})\\()['"]([^$*]*?)['"]`, 'g')
+    const specialRegex = new RegExp(routeViewRegex, 'g')
+    const callers = []
+
+    for (const file of files) {
+        const text = await fs.readFile(file.fsPath, 'utf8')
+        const matches = [
+            ...[...text.matchAll(regex)].map((match) => match[2]),
+            ...[...text.matchAll(specialRegex)].map((match) => match[3]),
+        ]
+
+        if (matches.some((match) => viewNames.includes(match))) {
+            callers.push({
+                label        : workspace.asRelativePath(file, false),
+                absolutePath : file.fsPath,
+            })
+        }
+    }
+
+    return callers
+}
+
+function getPhpExclude() {
+    const excludes = baseExclude.filter((pattern) => !pattern.toLowerCase().includes('vendor'))
+
+    return excludes.length > 1
+        ? `{${excludes.join(',')}}`
+        : excludes[0] || null
+}

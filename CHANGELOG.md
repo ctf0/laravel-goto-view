@@ -117,3 +117,7 @@
 - add links between shared PHP variables and their Blade usages
 - show PHP callers for the current Blade view in a code lens
 - ignore `<x-slot>` when finding similar component includes
+
+## 0.7.0
+
+- add codeaction to view

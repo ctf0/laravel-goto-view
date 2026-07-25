@@ -8,6 +8,7 @@ import {
 } from 'vscode'
 import {clear as clearCache} from './libs/cache'
 import * as cmnds from './libs/cmnds'
+import BladeCodeActionProvider from './providers/BladeCodeActionProvider'
 import BladeLensProvider from './providers/BladeLensProvider'
 import LinkProvider from './providers/LinkProvider'
 import PhpLensProvider from './providers/PhpLensProvider'
@@ -23,6 +24,7 @@ export async function activate(context: ExtensionContext) {
         if (e.affectsConfiguration(util.PACKAGE_NAME)) {
             util.readConfig()
             clearCache()
+            util.clearPhpCallersCache()
         }
     })
 
@@ -52,6 +54,7 @@ export async function activate(context: ExtensionContext) {
     // create
     cmnds.resetLinks.event(async() => {
         clearCache()
+        util.clearPhpCallersCache()
         await clearAll()
         initProviders()
     })
@@ -62,6 +65,9 @@ export async function activate(context: ExtensionContext) {
 
 const initProviders = debounce(() => {
     providers.push(languages.registerDocumentLinkProvider(['php', 'blade'], new LinkProvider()))
+    providers.push(languages.registerCodeActionsProvider(['blade'], new BladeCodeActionProvider(), {
+        providedCodeActionKinds : BladeCodeActionProvider.providedCodeActionKinds,
+    }))
 
     if (util.config.showCodeLens) {
         providers.push(languages.registerCodeLensProvider(['blade'], new BladeLensProvider()))

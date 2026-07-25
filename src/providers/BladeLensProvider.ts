@@ -4,10 +4,8 @@ import {
     Range,
     TextDocument,
     window,
-    workspace,
 } from 'vscode'
 import * as cache from '../libs/cache'
-import {getViewName} from '../libs/cmnds'
 import * as util from '../util'
 
 export default class BladeLensProvider implements CodeLensProvider {
@@ -31,26 +29,17 @@ export default class BladeLensProvider implements CodeLensProvider {
                 }),
             ]
 
-            const viewName = getViewName(uri.fsPath)
-            const componentPath = uri.fsPath
-                .replace(/.*views[\\/]/, '')
-                .replace(/\.blade.*/, '')
-                .replace(/[\\/]/g, '.')
-            const viewNames = componentPath.startsWith('components.')
-                ? [
-                    viewName,
-                    viewName.includes('::')
-                        ? viewName.replace('::', '::components.')
-                        : `components.${viewName}`,
-                ]
-                : [viewName]
-            const callers = await this.findPhpCallers(viewNames)
+            const viewNames = util.getViewNames(uri.fsPath)
+            const callers = await util.findPhpCallers(viewNames)
+            const callersLength = callers.length
 
-            if (callers.length) {
+            if (callersLength) {
+                const title = callersLength > 1 ? `(${callersLength})` : ''
+
                 links.push(
                     new CodeLens(new Range(0, 0, 0, 0), {
                         command   : 'lgtv.showSimilarCall',
-                        title     : `$(go-to-file) Open PHP callers (${callers.length})`,
+                        title     : `$(go-to-file) Open PHP callers ${title}`,
                         arguments : [callers, viewNames],
                     }),
                 )
@@ -85,37 +74,5 @@ export default class BladeLensProvider implements CodeLensProvider {
 
             return links
         }
-    }
-
-    private async findPhpCallers(viewNames: string[]) {
-        const files = await workspace.findFiles('**/*.php', this.getPhpExclude())
-        const regex = new RegExp(`(?<=(${util.phpMethods})\\()['"]([^$*]*?)['"]`, 'g')
-        const specialRegex = new RegExp(util.routeViewRegex, 'g')
-        const callers = []
-
-        for (const file of files) {
-            const text = await util.fs.readFile(file.fsPath, 'utf8')
-            const matches = [
-                ...[...text.matchAll(regex)].map((match) => match[2]),
-                ...[...text.matchAll(specialRegex)].map((match) => match[3]),
-            ]
-
-            if (matches.some((match) => viewNames.includes(match))) {
-                callers.push({
-                    label        : workspace.asRelativePath(file, false),
-                    absolutePath : file.fsPath,
-                })
-            }
-        }
-
-        return callers
-    }
-
-    private getPhpExclude() {
-        const excludes = util.baseExclude.filter((pattern) => !pattern.toLowerCase().includes('vendor'))
-
-        return excludes.length > 1
-            ? `{${excludes.join(',')}}`
-            : excludes[0] || null
     }
 }

@@ -61,34 +61,10 @@ function getWsFullPath(path, add = true) {
 
 /* Copy --------------------------------------------------------------------- */
 
-export function getViewName(fileName: string): string {
-    const rawPath = fileName
-        .replace(/.*views[\\/]/, '')    // remove start
-        .replace(/\.blade.*/, '')        // remove end
-        .replace(/[\\/]/g, '.')        // convert
-
-    const path = rawPath.startsWith('components.')
-        ? rawPath.slice('components.'.length)
-        : rawPath
-
-    const filePath = fileName.replace(/[\\/]/g, '/')
-    const module = util.config.vendorPath.map((vendorPath) => {
-        const [prefix, suffix] = vendorPath.replace(/[\\/]/g, '/').split('*')
-        const start = filePath.indexOf(prefix)
-        const end = filePath.indexOf(suffix, start + prefix.length)
-
-        return start >= 0 && end > start
-            ? filePath.slice(start + prefix.length, end)
-            : ''
-    }).find((name) => name)
-
-    return module ? `${module.toLowerCase()}::${path}` : path
-}
-
 export function copyPath() {
     const editor = window.activeTextEditor
     const {fileName} = editor.document
-    const path = getViewName(fileName)
+    const path = util.getViewName(fileName)
     const isComponent = fileName
         .replace(/.*views[\\/]/, '')
         .replace(/\.blade.*/, '')
