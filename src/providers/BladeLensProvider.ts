@@ -25,7 +25,7 @@ export default class BladeLensProvider implements CodeLensProvider {
             const links = [
                 new CodeLens(new Range(0, 0, 0, 0), {
                     command : 'lgtv.copyPath',
-                    title   : '$(copy) Copy File Path',
+                    title   : '$(copy)‎ Copy File Path',
                 }),
             ]
 
@@ -34,12 +34,12 @@ export default class BladeLensProvider implements CodeLensProvider {
             const callersLength = callers.length
 
             if (callersLength) {
-                const title = callersLength > 1 ? `(${callersLength})` : ''
+                const count = callersLength > 1 ? ` (${callersLength})` : ''
 
                 links.push(
                     new CodeLens(new Range(0, 0, 0, 0), {
                         command   : 'lgtv.showSimilarCall',
-                        title     : `$(go-to-file) Open PHP callers ${title}`,
+                        title     : `$(go-to-file)‎ Open PHP callers${count}`,
                         arguments : [callers, viewNames],
                     }),
                 )

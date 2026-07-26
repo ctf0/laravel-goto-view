@@ -34,7 +34,7 @@ export default class PhpLensProvider implements CodeLensProvider {
                 links.push(
                     new CodeLens(range, {
                         command : 'lgtv.openPath',
-                        title   : '$(open) Open File From Path',
+                        title   : '$(open)‎ Open File From Path',
                     }),
                 )
             }
