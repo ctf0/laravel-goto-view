@@ -9,8 +9,10 @@ import * as util from '../util'
 export default class PhpLensProvider implements CodeLensProvider {
     async provideCodeLenses(doc: TextDocument): Promise<CodeLens[]> {
         const editor = window.activeTextEditor
+        const links = []
+        const openPath = util.config.openPathCodelens
 
-        if (editor) {
+        if (editor && openPath) {
             const {uri} = doc
             const cached = cache.get('phpLens', doc)
 
@@ -20,9 +22,8 @@ export default class PhpLensProvider implements CodeLensProvider {
 
             util.setWs(uri)
 
-            const links = []
             const text = doc.getText()
-            const regex = new RegExp(util.config.openPathCodelens.join('|'), 'gm')
+            const regex = new RegExp(openPath.join('|'), 'gm')
             const matches = text.matchAll(regex)
 
             for (const match of matches) {
@@ -40,8 +41,8 @@ export default class PhpLensProvider implements CodeLensProvider {
             }
 
             cache.set('phpLens', doc, links)
-
-            return links
         }
+
+        return links
     }
 }

@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.7.1",
+    "version": "0.7.2",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.110.0"
@@ -108,6 +108,7 @@
                 "laravelGotoView.viewShareVariablePrefix": {
                     "type": "string",
                     "default": "_",
+                    "example": "vs__",
                     "markdownDescription": "viewShare variable prefix"
                 },
                 "laravelGotoView.openPathCodelens": {
@@ -118,19 +119,13 @@
                     "items": {
                         "type": "string"
                     },
-                    "minItems": 1,
                     "uniqueItems": true,
                     "description": "text regex to show ('lgtv.openPath' command) code lens above"
-                },
-                "laravelGotoView.watchFilesForChanges": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "watch blade files for changes so code lens list is always fresh (debounced to 1/min to minimize load)"
                 },
                 "laravelGotoView.showCodeLens": {
                     "type": "boolean",
                     "default": true,
-                    "description": "show/hide code lenses"
+                    "description": "enable code lenses"
                 },
                 "laravelGotoView.similarCallCodeLens": {
                     "type": "string",
