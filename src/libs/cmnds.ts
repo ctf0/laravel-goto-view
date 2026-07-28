@@ -18,12 +18,22 @@ export const resetLinks = new EventEmitter()
 
 export async function getFilePath(text) {
     const internal = getWsFullPath(util.defaultPath)
-    const char = '::'
+    const external = '::'
+    const component = 'x-'
+    let isComponent = false
 
-    if (text.includes(char)) {
-        text = text.split(char)
+    if (text.includes(component)) {
+        text = text.split(component)
+        text = text[1]
+        isComponent = true
+    }
+
+    const extra = isComponent ? `components${util.sep}` : ''
+
+    if (text.includes(external)) {
+        text = text.split(external)
         const vendor = text[0]
-        const key = text[1]
+        const key = `${extra}${text[1]}`
 
         return Promise.all(
             util.vendorPath.map((item) => getData(
@@ -35,7 +45,7 @@ export async function getFilePath(text) {
         ).then((data) => data.filter((e) => e))
     }
 
-    return [await getData(internal, text)]
+    return [await getData(internal, `${extra}${text}`)]
 }
 
 async function getData(fullPath, text) {
@@ -98,9 +108,17 @@ export async function openPath() {
     if (filePath) {
         filePath = filePath.replace(/['"]/g, '')
         const files: any = await getFilePath(filePath)
+        const len = files.length
+
+        if (
+            len == 0
+            || (len == 1 && files[0] == undefined)
+        ) {
+            return window.showInformationMessage(`Laravel Goto View: "${filePath}" not found`)
+        }
 
         // open if only one
-        if (files.length == 1) {
+        if (len == 1) {
             return openFile(files[0])
         }
 
@@ -186,7 +204,7 @@ export async function filesPicker(files, query) {
 }
 
 function openFile(file: any, query: any) {
-    return commands.executeCommand('vscode.open', Uri.file(file.absolutePath))
+    return commands.executeCommand('vscode.open', Uri.file(file.fileUri))
         .then(() => {
             if (query) {
                 setTimeout(() => {

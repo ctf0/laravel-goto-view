@@ -195,8 +195,8 @@ export default class LinkProvider implements DocumentLinkProvider {
     private readFileBatch(files) {
         return Promise.all(files.map(async(file) => ({
             file : {
-                label        : workspace.asRelativePath(file, false),
-                absolutePath : file.fsPath,
+                label   : workspace.asRelativePath(file, false),
+                fileUri : file.fsPath,
             },
             text : await util.fs.readFile(file.fsPath, 'utf8'),
         })))
@@ -206,7 +206,7 @@ export default class LinkProvider implements DocumentLinkProvider {
         doc: TextDocument,
         index: number,
         length: number,
-        files: {label: string, absolutePath: string}[],
+        files: {label: string, fileUri: string}[],
         query: string,
     ) {
         const args = encodeURIComponent(JSON.stringify([files, query]))

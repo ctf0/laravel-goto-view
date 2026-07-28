@@ -120,4 +120,9 @@
 
 ## 0.7.0
 
-- add codeaction to view
+- add code action to view
+
+## 0.7.4
+
+- fixes
+- add support to open file path from component ex.`x-home::layouts.guest`

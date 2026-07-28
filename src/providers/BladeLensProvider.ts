@@ -52,7 +52,7 @@ export default class BladeLensProvider implements CodeLensProvider {
             for (const regex of regexes) {
                 for (const match of text.matchAll(regex)) {
                     const found = match[match.length - 1] || match[0]
-                    const files = [...await util.searchForContentInFiles(found)].filter((file) => file.absolutePath.toLowerCase() != currentFile.toLowerCase())
+                    const files = [...await util.searchForContentInFiles(found)].filter((file) => file.fileUri.toLowerCase() != currentFile.toLowerCase())
                     const range = doc.getWordRangeAtPosition(
                         doc.positionAt(match.index),
                         regex,

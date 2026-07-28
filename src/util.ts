@@ -112,8 +112,8 @@ export async function searchForContentInFiles(text) {
 
             if (found.some((e) => e.match)) {
                 list.push({
-                    label        : getDocFullPath(path, false),
-                    absolutePath : path,
+                    label   : getDocFullPath(path, false),
+                    fileUri : path,
                 })
             }
         }
@@ -218,15 +218,17 @@ export function replaceSlash(item) {
 
 /* View Name ---------------------------------------------------------------- */
 
-export function getViewName(fileName: string): string {
+export function getViewName(fileName: string, keepFullPath = false): string {
     const rawPath = fileName
         .replace(/.*views[\\/]/, '')    // remove start
         .replace(/\.blade.*/, '')        // remove end
         .replace(/[\\/]/g, '.')        // convert
 
-    const path = rawPath.startsWith('components.')
-        ? rawPath.slice('components.'.length)
-        : rawPath
+    const path = keepFullPath
+        ? rawPath
+        : rawPath.startsWith('components.')
+            ? rawPath.slice('components.'.length)
+            : rawPath
 
     const filePath = fileName.replace(/[\\/]/g, '/')
     const module = vendorPath.map((vendorPath) => {
@@ -316,8 +318,8 @@ async function findPhpCallersRaw(viewNames: string[]) {
 
         if (matches.some((match) => viewNames.includes(match))) {
             callers.push({
-                label        : workspace.asRelativePath(file, false),
-                absolutePath : file.fsPath,
+                label   : workspace.asRelativePath(file, false),
+                fileUri : file.fsPath,
             })
         }
     }

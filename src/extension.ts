@@ -17,7 +17,7 @@ import * as util from './util'
 let providers = []
 
 export type LaravelGotoViewApi = {
-    getViewName(fileName: string): string
+    getViewName(fileName: string, keepFullPath: boolean): string
 }
 
 export async function activate(context: ExtensionContext): Promise<LaravelGotoViewApi> {
@@ -66,7 +66,9 @@ export async function activate(context: ExtensionContext): Promise<LaravelGotoVi
     // .blade files changes
     await util.listenForFileChanges(context.subscriptions)
 
-    return {getViewName: util.getViewName}
+    return {
+        getViewName : util.getViewName,
+    }
 }
 
 const initProviders = debounce(() => {
