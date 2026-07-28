@@ -16,7 +16,11 @@ import * as util from './util'
 
 let providers = []
 
-export async function activate(context: ExtensionContext) {
+export type LaravelGotoViewApi = {
+    getViewName(fileName: string): string
+}
+
+export async function activate(context: ExtensionContext): Promise<LaravelGotoViewApi> {
     util.readConfig()
 
     // config
@@ -61,6 +65,8 @@ export async function activate(context: ExtensionContext) {
 
     // .blade files changes
     await util.listenForFileChanges(context.subscriptions)
+
+    return {getViewName: util.getViewName}
 }
 
 const initProviders = debounce(() => {
