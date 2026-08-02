@@ -1,5 +1,3 @@
-based on https://github.com/codingyu/laravel-goto-view but with better api
-
 ## Features
 
 [![md](https://user-images.githubusercontent.com/7388088/104228433-87112a80-5453-11eb-9817-28fed35fd077.png)](https://user-images.githubusercontent.com/7388088/104228433-87112a80-5453-11eb-9817-28fed35fd077.png)

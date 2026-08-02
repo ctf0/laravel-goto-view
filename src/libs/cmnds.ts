@@ -75,6 +75,11 @@ export function copyPath() {
     const editor = window.activeTextEditor
     const {fileName} = editor.document
     const path = util.getViewName(fileName)
+
+    if (!path) {
+        return window.showInformationMessage(`"${fileName}" cant be resolved correctly`)
+    }
+
     const isComponent = fileName
         .replace(/.*views[\\/]/, '')
         .replace(/\.blade.*/, '')
@@ -114,7 +119,7 @@ export async function openPath() {
             len == 0
             || (len == 1 && files[0] == undefined)
         ) {
-            return window.showInformationMessage(`Laravel Goto View: "${filePath}" not found`)
+            return window.showInformationMessage(`"${filePath}" not found`)
         }
 
         // open if only one
@@ -160,7 +165,7 @@ export async function createFileFromText(args) {
 
     await workspace.applyEdit(edit)
 
-    window.showInformationMessage(`Laravel Goto View: "${path}" created`)
+    window.showInformationMessage(`"${path}" created`)
     resetLinks.fire(resetLinks)
 
     if (util.config.activateViewAfterCreation) {

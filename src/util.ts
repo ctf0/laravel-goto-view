@@ -218,11 +218,23 @@ export function replaceSlash(item) {
 
 /* View Name ---------------------------------------------------------------- */
 
-export function getViewName(fileName: string, keepFullPath = false): string {
+export function getViewName(fileName: string, keepFullPath = false, workspaceFolder?: string): string|undefined {
+    const ws = workspaceFolder ?? workspace.workspaceFolders?.[0]?.uri.fsPath
+
+    if (!ws) {
+        return undefined
+    }
+
+    fileName = fileName.replace(ws, '')
+
+    if (fileName.startsWith('/vendor/')) {
+        return undefined
+    }
+
     const rawPath = fileName
-        .replace(/.*views[\\/]/, '')    // remove start
-        .replace(/\.blade.*/, '')        // remove end
-        .replace(/[\\/]/g, '.')        // convert
+        .replace(/.*views[\\/]/, '') // remove start
+        .replace(/\.blade.*/, '')    // remove end
+        .replace(/[\\/]/g, '.')      // convert
 
     const path = keepFullPath
         ? rawPath
@@ -241,11 +253,18 @@ export function getViewName(fileName: string, keepFullPath = false): string {
             : ''
     }).find((name) => name)
 
-    return module ? `${module.toLowerCase()}::${path}` : path
+    return module
+        ? `${module.toLowerCase()}::${path}`
+        : (path.startsWith('vendor.') ? path.replace('vendor.', '').replace(/\./, '::') : path)
 }
 
 export function getViewNames(fsPath: string): string[] {
     const viewName = getViewName(fsPath)
+
+    if (!viewName) {
+        return []
+    }
+
     const componentPath = fsPath
         .replace(/.*views[\\/]/, '')
         .replace(/\.blade.*/, '')

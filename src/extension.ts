@@ -17,7 +17,11 @@ import * as util from './util'
 let providers = []
 
 export type LaravelGotoViewApi = {
-    getViewName(fileName: string, keepFullPath: boolean): string
+    getViewName(
+        fileName: string,
+        keepFullPath: boolean,
+        workspaceFolder?: string,
+    ): string|undefined
 }
 
 export async function activate(context: ExtensionContext): Promise<LaravelGotoViewApi> {
