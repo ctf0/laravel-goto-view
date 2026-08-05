@@ -26,7 +26,7 @@ export default class LinkProvider implements DocumentLinkProvider {
         const links: DocumentLink[] = []
         util.setWs(doc.uri)
 
-        const calls = this.findCalls(doc.getText())
+        const calls = util.findViewNameCalls(doc.getText())
         const filePathPromises = new Map()
 
         for (const {text} of calls) {
@@ -56,25 +56,6 @@ export default class LinkProvider implements DocumentLinkProvider {
         cache.set('links', doc, links)
 
         return links
-    }
-
-    private findCalls(text) {
-        const regex = new RegExp(`(?<=(${util.methods})\\()['"]([^$*]*?)['"]`, 'g')
-        const specialRegex = new RegExp(util.routeViewRegex, 'g')
-
-        return [
-            ...[...text.matchAll(regex)].map((match) => ({
-                text  : match[2],
-                index : match.index,
-            })),
-            ...[...text.matchAll(specialRegex)].map((match) => ({
-                text  : match[3],
-                index : match.index,
-            })),
-        ].map(({text, index}) => ({
-            text,
-            index : index + text.length,
-        }))
     }
 
     private async findShareLinks(doc: TextDocument) {

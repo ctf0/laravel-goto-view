@@ -22,6 +22,7 @@ export type LaravelGotoViewApi = {
         keepFullPath: boolean,
         workspaceFolder?: string,
     ): string|undefined
+    findViewNameCalls(text: string): {text: string, index: number}[]
 }
 
 export async function activate(context: ExtensionContext): Promise<LaravelGotoViewApi> {
@@ -71,7 +72,8 @@ export async function activate(context: ExtensionContext): Promise<LaravelGotoVi
     await util.listenForFileChanges(context.subscriptions)
 
     return {
-        getViewName : util.getViewName,
+        getViewName       : util.getViewName,
+        findViewNameCalls : util.findViewNameCalls,
     }
 }
 

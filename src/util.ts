@@ -14,8 +14,27 @@ export function setWs(uri) {
 }
 
 /* Link --------------------------------------------------------------------- */
-export const routeViewRegex = '(?<=Route::view\\()(?:.*,( +)?)([\'"]([^$*]*?)[\'"])'
+const routeViewRegex = '(?<=Route::view\\()(?:.*,( +)?)([\'"]([^$*]*?)[\'"])'
 const cache_store_link = []
+
+export function findViewNameCalls(text: string): {text: string, index: number}[] {
+    const regex = new RegExp(`(?<=(${methods})\\()['"]([^$*]*?)['"]`, 'g')
+    const specialRegex = new RegExp(routeViewRegex, 'g')
+
+    return [
+        ...[...text.matchAll(regex)].map((match) => ({
+            text  : match[2],
+            index : match.index,
+        })),
+        ...[...text.matchAll(specialRegex)].map((match) => ({
+            text  : match[3],
+            index : match.index,
+        })),
+    ].map(({text, index}) => ({
+        text,
+        index : index + text.length,
+    }))
+}
 
 export async function getFilePath(text) {
     text = text.replace(/['"]/g, '')
@@ -231,15 +250,12 @@ export function getViewName(fileName: string, keepFullPath = false, workspaceFol
         return undefined
     }
 
-    const rawPath = fileName
-        .replace(/.*views[\\/]/, '') // remove start
-        .replace(/\.blade.*/, '')    // remove end
-        .replace(/[\\/]/g, '.')      // convert
+    const rawPath = viewPathToBlade(fileName)
 
     const path = keepFullPath
         ? rawPath
         : rawPath.startsWith('components.')
-            ? rawPath.slice('components.'.length)
+            ? rawPath.replace('components.', '')
             : rawPath
 
     const filePath = fileName.replace(/[\\/]/g, '/')
@@ -258,6 +274,13 @@ export function getViewName(fileName: string, keepFullPath = false, workspaceFol
         : (path.startsWith('vendor.') ? path.replace('vendor.', '').replace(/\./, '::') : path)
 }
 
+function viewPathToBlade(fsPath: string) {
+    return fsPath
+        .replace(/.*views[\\/]/, '') // remove start
+        .replace(/\.blade.*/, '')    // remove end
+        .replace(/[\\/]/g, '.')      // convert
+}
+
 export function getViewNames(fsPath: string): string[] {
     const viewName = getViewName(fsPath)
 
@@ -265,10 +288,7 @@ export function getViewNames(fsPath: string): string[] {
         return []
     }
 
-    const componentPath = fsPath
-        .replace(/.*views[\\/]/, '')
-        .replace(/\.blade.*/, '')
-        .replace(/[\\/]/g, '.')
+    const componentPath = viewPathToBlade(fsPath)
 
     return componentPath.startsWith('components.')
         ? [
