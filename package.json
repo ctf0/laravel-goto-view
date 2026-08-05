@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.7.6",
+    "version": "0.7.7",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.110.0"
@@ -172,6 +172,11 @@
                     "type": "string",
                     "default": "@include('$ph')",
                     "description": "auto surround copied file path ($ph will be replaced with the actual file path)"
+                },
+                "laravelGotoView.copiedComponentPathSurround": {
+                    "type": "string",
+                    "default": "x-$ph",
+                    "description": "auto surround copied component file path ($ph will be replaced with the actual file path)"
                 },
                 "laravelGotoView.viewDefaultValue": {
                     "type": "string",

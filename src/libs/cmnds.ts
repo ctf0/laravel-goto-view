@@ -87,7 +87,7 @@ export function copyPath() {
         .startsWith('components.')
 
     const ph = isComponent
-        ? `<x-${path}>`
+        ? util.config.copiedComponentPathSurround?.replace('$ph', path) || path
         : util.config.copiedPathSurround?.replace('$ph', path) || path
 
     env.clipboard.writeText(ph)
