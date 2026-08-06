@@ -59,9 +59,7 @@ export async function getFilePath(text) {
                 vendorPath.map((item) => getData(
                     getDocFullPath(item).replace('*', pascalcase(vendor)),
                     key,
-                )).concat([
-                    await getData(`${internal}${sep}vendor${sep}${vendor}`, key),
-                ]),
+                )),
             )
         } else {
             list = [await getData(internal, text)]
@@ -86,7 +84,6 @@ async function getData(fullPath, text) {
 
     return exists
         ? {
-            tooltip : fullFileName,
             fileUri : Uri.file(filePath),
         }
         : config.createViewIfNotFound
