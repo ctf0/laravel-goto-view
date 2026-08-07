@@ -50,6 +50,10 @@ export default class BladeLensProvider implements CodeLensProvider {
             const regexes = util.similarIncludeDirectives.map((pattern) => new RegExp(pattern, 'g'))
 
             for (const regex of regexes) {
+                if (regex.source === '(?:)') {
+                    continue
+                }
+
                 for (const match of text.matchAll(regex)) {
                     const found = match[match.length - 1] || match[0]
                     const files = [...await util.searchForContentInFiles(found)].filter((file) => file.fileUri.toLowerCase() != currentFile.toLowerCase())

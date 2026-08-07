@@ -36,6 +36,10 @@ export default class LinkProvider implements DocumentLinkProvider {
         }
 
         for (const {text, index} of calls) {
+            if (!text) {
+                continue
+            }
+
             const files = await filePathPromises.get(text)
             const range = doc.getWordRangeAtPosition(
                 doc.positionAt(index),

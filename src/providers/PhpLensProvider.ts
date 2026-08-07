@@ -12,7 +12,7 @@ export default class PhpLensProvider implements CodeLensProvider {
         const links = []
         const openPath = util.config.openPathCodelens
 
-        if (editor && openPath) {
+        if (editor && openPath?.length) {
             const {uri} = doc
             const cached = cache.get('phpLens', doc)
 
