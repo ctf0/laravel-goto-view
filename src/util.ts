@@ -255,7 +255,7 @@ export function getViewName(fileName: string, keepFullPath = false, workspaceFol
         path = rawPath
     }
 
-    if (rawPath.startsWith('components.')) {
+    if (rawPath.startsWith('components.') && !keepFullPath) {
         path = rawPath.replace('components.', '')
     }
 
