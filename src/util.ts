@@ -249,11 +249,15 @@ export function getViewName(fileName: string, keepFullPath = false, workspaceFol
 
     const rawPath = viewPathToBlade(fileName)
 
-    const path = keepFullPath
-        ? rawPath
-        : rawPath.startsWith('components.')
-            ? rawPath.replace('components.', '')
-            : rawPath
+    let path = rawPath
+
+    if (keepFullPath) {
+        path = rawPath
+    }
+
+    if (rawPath.startsWith('components.')) {
+        path = rawPath.replace('components.', '')
+    }
 
     const filePath = fileName.replace(/[\\/]/g, '/')
     const module = vendorPath.map((vendorPath) => {
@@ -266,12 +270,18 @@ export function getViewName(fileName: string, keepFullPath = false, workspaceFol
             : ''
     }).find((name) => name)
 
-    return module
-        ? `${module.toLowerCase()}::${path}`
-        : (path.startsWith('vendor.') ? path.replace('vendor.', '').replace(/\./, '::') : path)
+    if (module) {
+        return `${module.toLowerCase()}::${path}`
+    }
+
+    if (path.startsWith('vendor.')) {
+        return path.replace('vendor.', '').replace(/\./, '::')
+    }
+
+    return path
 }
 
-function viewPathToBlade(fsPath: string) {
+export function viewPathToBlade(fsPath: string) {
     return fsPath
         .replace(/.*views[\\/]/, '') // remove start
         .replace(/\.blade.*/, '')    // remove end
@@ -287,14 +297,25 @@ export function getViewNames(fsPath: string): string[] {
 
     const componentPath = viewPathToBlade(fsPath)
 
-    return componentPath.startsWith('components.')
-        ? [
+    if (componentPath.startsWith('components.')) {
+        return [
             viewName,
             viewName.includes('::')
                 ? viewName.replace('::', '::components.')
                 : `components.${viewName}`,
         ]
-        : [viewName]
+    }
+
+    if (componentPath.startsWith('livewire.')) {
+        return [
+            viewName,
+            viewName.includes('::')
+                ? viewName.replace('::', '::livewire.')
+                : `livewire.${viewName}`,
+        ]
+    }
+
+    return [viewName]
 }
 
 const phpCallersCache = new Map<string, {result: any[], timestamp: number}>()

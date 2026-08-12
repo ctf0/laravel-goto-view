@@ -126,3 +126,7 @@
 
 - fixes
 - add support to open file path from component ex.`x-home::layouts.guest`
+
+## 0.8.1
+
+- support livewire

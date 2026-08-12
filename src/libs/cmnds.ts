@@ -13,22 +13,28 @@ import {
     WorkspaceEdit,
 } from 'vscode'
 import * as util from '../util'
+import {viewPathToBlade} from '../util'
 
 export const resetLinks = new EventEmitter()
 
-export async function getFilePath(text) {
+export async function getFilePath(text: any) {
     const internal = getWsFullPath(util.defaultPath)
     const external = '::'
     const component = 'x-'
-    let isComponent = false
+    const livewire = 'livewire:'
+    let extra = ''
 
     if (text.includes(component)) {
         text = text.split(component)
         text = text[1]
-        isComponent = true
+        extra = `components${util.sep}`
     }
 
-    const extra = isComponent ? `components${util.sep}` : ''
+    if (text.includes(livewire)) {
+        text = text.split(livewire)
+        text = text[1]
+        extra = `livewire${util.sep}`
+    }
 
     if (text.includes(external)) {
         text = text.split(external)
@@ -62,7 +68,7 @@ async function getData(fullPath, text) {
 }
 
 function getWsFullPath(path, add = true) {
-    const ws = workspace.workspaceFolders[0]?.uri.fsPath
+    const ws = workspace.workspaceFolders![0]?.uri.fsPath
 
     return add
         ? util.replaceSlash(`${ws}${path}`)
@@ -73,6 +79,11 @@ function getWsFullPath(path, add = true) {
 
 export function copyPath() {
     const editor = window.activeTextEditor
+
+    if (!editor) {
+        throw Error('no opened editor is available')
+    }
+
     const {fileName} = editor.document
     const path = util.getViewName(fileName)
 
@@ -80,15 +91,18 @@ export function copyPath() {
         return window.showInformationMessage(`"${fileName}" cant be resolved correctly`)
     }
 
-    const isComponent = fileName
-        .replace(/.*views[\\/]/, '')
-        .replace(/\.blade.*/, '')
-        .replace(/[\\/]/g, '.')
-        .startsWith('components.')
+    const bladePath = viewPathToBlade(fileName)
+    let ph = util.config.copiedPathSurround?.replace('$ph', path) || path
 
-    const ph = isComponent
-        ? util.config.copiedComponentPathSurround?.replace('$ph', path) || path
-        : util.config.copiedPathSurround?.replace('$ph', path) || path
+    if (bladePath.startsWith('components.')) {
+        ph = util.config.copiedComponentPathSurround?.replace('$ph', path) || path
+    }
+
+    if (bladePath.startsWith('livewire.')) {
+        ph = path.includes('::')
+            ? `livewire:${path.replace('livewire.', '')}`
+            : path.replace('livewire.', 'livewire:')
+    }
 
     env.clipboard.writeText(ph)
 
@@ -208,7 +222,7 @@ export async function filesPicker(files, query) {
     })
 }
 
-function openFile(file: any, query: any) {
+function openFile(file: any, query: any = null) {
     return commands.executeCommand('vscode.open', Uri.file(file.fileUri))
         .then(() => {
             if (query) {
