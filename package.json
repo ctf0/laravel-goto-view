@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.8.2",
+    "version": "0.8.3",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.110.0"
@@ -129,7 +129,7 @@
                 },
                 "laravelGotoView.similarCallCodeLens": {
                     "type": "string",
-                    "default": "$(loading~spin)‎ show files with similar call (#)",
+                    "default": "$(archive)‎ show files with similar call (#)",
                     "markdownDescription": "codelens command text\n\nrequire `#laravelGotoView.showCodeLens#`\n\n[$(icon-name)](https://microsoft.github.io/vscode-codicons/dist/codicon.html)\n\n\\# == placeholder for files length (remove it to disable this feature)"
                 },
                 "laravelGotoView.similarIncludeDirectives": {

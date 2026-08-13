@@ -2,6 +2,8 @@ import {
     CodeAction,
     CodeActionKind,
     CodeActionProvider,
+    Disposable,
+    EventEmitter,
     TextDocument,
     window,
 } from 'vscode'
@@ -10,7 +12,23 @@ import * as util from '../util'
 export default class BladeCodeActionProvider implements CodeActionProvider {
     static readonly providedCodeActionKinds = [CodeActionKind.QuickFix]
 
-    async provideCodeActions(doc: TextDocument) {
+    private readonly _onDidChangeCodeActions = new EventEmitter<void>()
+    readonly onDidChangeCodeActions = this._onDidChangeCodeActions.event
+
+    private readonly watcher : Disposable
+
+    constructor() {
+        this.watcher = util.onPhpCallersReady.event(() => {
+            this._onDidChangeCodeActions.fire()
+        })
+    }
+
+    dispose() {
+        this.watcher.dispose()
+        this._onDidChangeCodeActions.dispose()
+    }
+
+    provideCodeActions(doc: TextDocument) {
         if (!window.activeTextEditor) {
             return []
         }
@@ -19,9 +37,8 @@ export default class BladeCodeActionProvider implements CodeActionProvider {
 
         const actions: CodeAction[] = []
 
-        // Copy File Path
         const copyAction = new CodeAction(
-            'Copy File Path',
+            'View: Copy File Path',
             CodeActionKind.Empty,
         )
         copyAction.command = {
@@ -30,13 +47,12 @@ export default class BladeCodeActionProvider implements CodeActionProvider {
         }
         actions.push(copyAction)
 
-        // Open PHP callers
         const viewNames = util.getViewNames(doc.uri.fsPath)
-        const callers = await util.findPhpCallers(viewNames)
+        const callers = util.peekPhpCallers(viewNames)
 
-        if (callers.length) {
+        if (callers && callers.length) {
             const callersAction = new CodeAction(
-                `Open PHP callers`,
+                `View: Open PHP callers`,
                 CodeActionKind.Empty,
             )
             callersAction.command = {

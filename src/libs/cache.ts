@@ -26,7 +26,25 @@ export function setIndex(name, value) {
     indexCache.set(name, value)
 }
 
-export function clear() {
+export function clear(name?: string, doc?) {
+    if (name && doc) {
+        cache.delete(getKey(name, doc))
+
+        return
+    }
+
+    if (name) {
+        const prefix = `${name}:`
+
+        for (const key of cache.keys()) {
+            if (key.startsWith(prefix)) {
+                cache.delete(key)
+            }
+        }
+
+        return
+    }
+
     cache.clear()
     indexCache.clear()
 }

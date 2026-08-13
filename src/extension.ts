@@ -15,6 +15,7 @@ import PhpLensProvider from './providers/PhpLensProvider'
 import * as util from './util'
 
 let providers = []
+let providerInstances: {dispose(): void}[] = []
 
 export type LaravelGotoViewApi = {
     getViewName(
@@ -78,13 +79,20 @@ export async function activate(context: ExtensionContext): Promise<LaravelGotoVi
 }
 
 const initProviders = debounce(() => {
-    providers.push(languages.registerDocumentLinkProvider(['php', 'blade'], new LinkProvider()))
-    providers.push(languages.registerCodeActionsProvider(['blade'], new BladeCodeActionProvider(), {
+    const linkProvider = new LinkProvider()
+    providers.push(languages.registerDocumentLinkProvider(['php', 'blade'], linkProvider))
+
+    const codeActionProvider = new BladeCodeActionProvider()
+    providers.push(languages.registerCodeActionsProvider(['blade'], codeActionProvider, {
         providedCodeActionKinds : BladeCodeActionProvider.providedCodeActionKinds,
     }))
+    providerInstances.push(codeActionProvider)
 
     if (util.config.showCodeLens) {
-        providers.push(languages.registerCodeLensProvider(['blade'], new BladeLensProvider()))
+        const bladeLensProvider = new BladeLensProvider()
+        providers.push(languages.registerCodeLensProvider(['blade'], bladeLensProvider))
+        providerInstances.push(bladeLensProvider)
+
         providers.push(languages.registerCodeLensProvider(['php'], new PhpLensProvider()))
     }
 }, 250)
@@ -93,6 +101,9 @@ function clearAll() {
     return new Promise((res, rej) => {
         providers.map((e) => e.dispose())
         providers = []
+
+        providerInstances.map((e) => e.dispose())
+        providerInstances = []
 
         setTimeout(() => res(true), 500)
     })

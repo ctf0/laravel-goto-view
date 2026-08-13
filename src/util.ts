@@ -1,7 +1,7 @@
 import escapeStringRegexp from 'escape-string-regexp'
 import debounce from 'lodash.debounce'
 import {pascalcase} from 'pascalcase'
-import {Uri, workspace, WorkspaceConfiguration} from 'vscode'
+import {EventEmitter, Uri, workspace, WorkspaceConfiguration} from 'vscode'
 
 const path = require('path')
 export const fs = require('fs-extra')
@@ -321,6 +321,12 @@ export function getViewNames(fsPath: string): string[] {
 const phpCallersCache = new Map<string, {result: any[], timestamp: number}>()
 const phpCallersInflight = new Map<string, Promise<any[]>>()
 
+/**
+ * Fires whenever a PHP callers search completes (fresh, not cached).
+ * Providers listen and re-emit their own change events so VS Code refreshes.
+ */
+export const onPhpCallersReady = new EventEmitter<string>()
+
 export function clearPhpCallersCache() {
     phpCallersCache.clear()
     phpCallersInflight.clear()
@@ -328,6 +334,40 @@ export function clearPhpCallersCache() {
 
 function phpCallersCacheKey(viewNames: string[]) {
     return viewNames.slice().sort().join('\x00')
+}
+
+/**
+ * Synchronous peek: returns the cached callers if available, otherwise undefined.
+ * Kicks off a background search when there is no cache and no in-flight request,
+ * which resolves and fires `onPhpCallersReady` with the cache key.
+ *
+ * Use this in providers that must return immediately and refresh later.
+ */
+export function peekPhpCallers(viewNames: string[]): any[] | undefined {
+    if (!viewNames.length) {
+        return []
+    }
+
+    const key = phpCallersCacheKey(viewNames)
+    const cached = phpCallersCache.get(key)
+
+    if (cached && Date.now() - cached.timestamp < 30_000) {
+        return cached.result
+    }
+
+    if (!phpCallersInflight.has(key)) {
+        void findPhpCallers(viewNames).then(() => onPhpCallersReady.fire(key))
+    }
+
+    return undefined
+}
+
+export function isPhpCallersInflight(viewNames: string[]): boolean {
+    if (!viewNames.length) {
+        return false
+    }
+
+    return phpCallersInflight.has(phpCallersCacheKey(viewNames))
 }
 
 export async function findPhpCallers(viewNames: string[]) {
