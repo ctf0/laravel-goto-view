@@ -130,3 +130,7 @@
 ## 0.8.1
 
 - support livewire
+
+## 0.8.4
+
+- remove `laravelGotoView.openPathCodelens`

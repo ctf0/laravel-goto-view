@@ -2,7 +2,7 @@
     "name": "laravel-goto-view",
     "displayName": "Laravel Goto View",
     "description": "Quick jump to view",
-    "version": "0.8.3",
+    "version": "0.8.4",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.110.0"
@@ -110,17 +110,6 @@
                     "default": "_",
                     "example": "vs__",
                     "markdownDescription": "viewShare variable prefix"
-                },
-                "laravelGotoView.openPathCodelens": {
-                    "type": "array",
-                    "default": [
-                        "[vV]iew\\(\\[?$"
-                    ],
-                    "items": {
-                        "type": "string"
-                    },
-                    "uniqueItems": true,
-                    "description": "text regex to show ('lgtv.openPath' command) code lens above"
                 },
                 "laravelGotoView.showCodeLens": {
                     "type": "boolean",

@@ -11,7 +11,6 @@ import * as cmnds from './libs/cmnds'
 import BladeCodeActionProvider from './providers/BladeCodeActionProvider'
 import BladeLensProvider from './providers/BladeLensProvider'
 import LinkProvider from './providers/LinkProvider'
-import PhpLensProvider from './providers/PhpLensProvider'
 import * as util from './util'
 
 let providers = []
@@ -92,8 +91,6 @@ const initProviders = debounce(() => {
         const bladeLensProvider = new BladeLensProvider()
         providers.push(languages.registerCodeLensProvider(['blade'], bladeLensProvider))
         providerInstances.push(bladeLensProvider)
-
-        providers.push(languages.registerCodeLensProvider(['php'], new PhpLensProvider()))
     }
 }, 250)
 
