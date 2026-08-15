@@ -224,6 +224,8 @@ export async function readConfig() {
     baseExclude = Object.entries(workspace.getConfiguration('files').get('exclude', {}))
         .filter(([pattern, excluded]) => excluded)
         .map(([pattern]) => pattern)
+        .concat('**/storage/**', '**/node_modules/**', '**/.*/**')
+        .filter((pattern, index, self) => self.indexOf(pattern) === index)
 
     await saveSimilarIncludeFilesCache()
 }
