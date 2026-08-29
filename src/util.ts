@@ -2,6 +2,7 @@ import escapeStringRegexp from 'escape-string-regexp'
 import debounce from 'lodash.debounce'
 import {pascalcase} from 'pascalcase'
 import {EventEmitter, Uri, workspace, WorkspaceConfiguration} from 'vscode'
+import {buildSimilarCallQuery} from './libs/similar'
 
 const path = require('path')
 export const fs = require('fs-extra')
@@ -116,14 +117,16 @@ const findInFiles = require('find-in')
 const cache_store_lens = []
 let similarIncludeFilesCache: any = []
 
-export async function searchForContentInFiles(text) {
-    const list = checkCache(cache_store_lens, text)
+export async function searchForContentInFiles(directive: string|undefined, text: string) {
+    const query = buildSimilarCallQuery(directive, text)
+    const cache_key = query.source
+    const list = checkCache(cache_store_lens, cache_key)
 
     if (!list.length) {
         for (const path of similarIncludeFilesCache) {
             const found = await findInFiles({
                 path,
-                request : [text],
+                request : [query],
             })
 
             if (found.some((e) => e.match)) {
@@ -134,7 +137,7 @@ export async function searchForContentInFiles(text) {
             }
         }
 
-        saveCache(cache_store_lens, text, list)
+        saveCache(cache_store_lens, cache_key, list)
     }
 
     return list

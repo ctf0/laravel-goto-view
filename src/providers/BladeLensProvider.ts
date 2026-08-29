@@ -105,7 +105,8 @@ export default class BladeLensProvider implements CodeLensProvider {
 
             for (const match of text.matchAll(regex)) {
                 const found = match[match.length - 1] || match[0]
-                const files = [...await util.searchForContentInFiles(found)].filter(
+                const directive = match[1] as string|undefined
+                const files = [...await util.searchForContentInFiles(directive, found)].filter(
                     (file) => file.fileUri.toLowerCase() != currentFile.toLowerCase(),
                 )
                 const range = doc.getWordRangeAtPosition(
